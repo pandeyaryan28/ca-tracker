@@ -182,12 +182,12 @@ export const LecturesView: React.FC = () => {
       </div>
 
       {/* Subject Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full min-w-0 flex-nowrap">
         <button
           type="button"
           onClick={() => setSelectedSubject('all')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap',
+            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
             selectedSubject === 'all'
               ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm'
               : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -211,7 +211,7 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper1')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap',
+            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
             selectedSubject === 'paper1'
               ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
               : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -235,7 +235,7 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper2')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap',
+            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
             selectedSubject === 'paper2'
               ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
               : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -259,7 +259,7 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper4')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap',
+            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
             selectedSubject === 'paper4'
               ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
               : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'

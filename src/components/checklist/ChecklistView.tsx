@@ -224,12 +224,12 @@ export const ChecklistView: React.FC = () => {
       <div className="space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Subject Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 max-w-full">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 w-full max-w-full min-w-0 flex-nowrap">
             <button
               type="button"
               onClick={() => setSelectedSubject('all')}
               className={cn(
-                'px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors touch-target',
+                'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors touch-target shrink-0',
                 selectedSubject === 'all'
                   ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
                   : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -243,7 +243,7 @@ export const ChecklistView: React.FC = () => {
                 type="button"
                 onClick={() => setSelectedSubject(sub.id)}
                 className={cn(
-                  'px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors touch-target',
+                  'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors touch-target shrink-0',
                   selectedSubject === sub.id
                     ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -279,16 +279,16 @@ export const ChecklistView: React.FC = () => {
         </div>
 
         {/* Sub-Filters: Status & Due Date Filter */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200/60 dark:border-zinc-800/60 pt-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-zinc-500 font-medium">Status:</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-zinc-200/60 dark:border-zinc-800/60 pt-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full sm:w-auto min-w-0">
+            <span className="text-xs text-zinc-500 font-medium shrink-0">Status:</span>
             {(['all', 'pending', 'in_progress', 'completed'] as const).map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
                 className={cn(
-                  'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                  'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0',
                   statusFilter === st
                     ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold'
                     : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
@@ -302,9 +302,9 @@ export const ChecklistView: React.FC = () => {
               </button>
             ))}
 
-            <span className="text-zinc-300 dark:text-zinc-700 mx-1">|</span>
+            <span className="text-zinc-300 dark:text-zinc-700 mx-1 shrink-0">|</span>
 
-            <span className="text-xs text-zinc-500 font-medium">Schedule:</span>
+            <span className="text-xs text-zinc-500 font-medium shrink-0">Schedule:</span>
             {(
               [
                 { id: 'all', label: 'All' },
@@ -319,7 +319,7 @@ export const ChecklistView: React.FC = () => {
                 type="button"
                 onClick={() => setDateFilter(d.id)}
                 className={cn(
-                  'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                  'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0',
                   dateFilter === d.id
                     ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold'
                     : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
