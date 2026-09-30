@@ -48,7 +48,11 @@ try {
 export const db: Firestore = firestoreInstance;
 export const auth: Auth = getAuth(app);
 
-export const SINGLE_USER_ID = 'default_user';
+const isTestEnv =
+  (typeof process !== 'undefined' && (process.env?.NODE_ENV === 'test' || Boolean(process.env?.VITEST))) ||
+  (typeof window !== 'undefined' && Boolean((window as any).__VITEST__));
+
+export const SINGLE_USER_ID = isTestEnv ? 'test_fixture_user' : 'default_user';
 
 /**
  * Strips undefined properties so Firestore writes never fail on optional attributes
@@ -215,11 +219,24 @@ export async function syncSettingsWithCloud(
     const snap = await getDoc(settingsRef);
     if (snap.exists()) {
       const cloudData = snap.data() as UserSettings;
+      const localTime = localSettings.lastSyncedAt ? new Date(localSettings.lastSyncedAt).getTime() : 0;
+      const cloudTime = cloudData.lastSyncedAt ? new Date(cloudData.lastSyncedAt).getTime() : 0;
+
+      let resolvedExamDate = (cloudData.examDate && cloudData.examDate.trim()) || localSettings.examDate;
+      if (localTime > cloudTime) {
+        resolvedExamDate = localSettings.examDate;
+      }
+
       const merged: UserSettings = {
         ...localSettings,
         ...cloudData,
-        examDate: (cloudData.examDate && cloudData.examDate.trim()) || localSettings.examDate,
+        examDate: resolvedExamDate,
       };
+
+      if (localTime > cloudTime) {
+        await setDoc(settingsRef, sanitizeForFirestore(merged), { merge: true });
+      }
+
       return merged;
     } else {
       await setDoc(settingsRef, sanitizeForFirestore(localSettings), { merge: true });

@@ -56,15 +56,32 @@ const seedSchedule = loadSeedSchedule();
 function loadCachedSettings(): UserSettings {
   try {
     const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.SETTINGS) : null;
+    const dedicatedExamDate =
+      typeof window !== 'undefined' && STORAGE_KEYS.TARGET_EXAM_DATE
+        ? localStorage.getItem(STORAGE_KEYS.TARGET_EXAM_DATE)
+        : null;
+
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
+        const resolvedExamDate =
+          (dedicatedExamDate && dedicatedExamDate.trim()) ||
+          (parsed.examDate && String(parsed.examDate).trim()) ||
+          DEFAULT_USER_SETTINGS.examDate;
+
         return {
           ...DEFAULT_USER_SETTINGS,
           ...parsed,
-          examDate: (parsed.examDate && String(parsed.examDate).trim()) || DEFAULT_USER_SETTINGS.examDate,
+          examDate: resolvedExamDate,
         };
       }
+    }
+
+    if (dedicatedExamDate && dedicatedExamDate.trim()) {
+      return {
+        ...DEFAULT_USER_SETTINGS,
+        examDate: dedicatedExamDate.trim(),
+      };
     }
   } catch (err) {
     console.warn('[DataContext] Error reading settings from localStorage:', err);
@@ -76,10 +93,34 @@ function saveCachedSettings(settings: UserSettings): void {
   try {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+      if (settings.examDate && settings.examDate.trim()) {
+        localStorage.setItem(STORAGE_KEYS.TARGET_EXAM_DATE, settings.examDate.trim());
+      }
     }
   } catch (err) {
     console.warn('[DataContext] Error saving settings to localStorage:', err);
   }
+}
+
+function resolveSettingsConflict(cached: UserSettings, cloudSettings: UserSettings): UserSettings {
+  const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
+  const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
+
+  // If local timestamp is strictly newer, local user choice wins
+  if (cachedTime > cloudTime) {
+    return {
+      ...cloudSettings,
+      ...cached,
+      examDate: cached.examDate || cloudSettings.examDate || DEFAULT_USER_SETTINGS.examDate,
+    };
+  }
+
+  // Cloud timestamp is newer or equal:
+  return {
+    ...cached,
+    ...cloudSettings,
+    examDate: (cloudSettings.examDate && cloudSettings.examDate.trim()) || cached.examDate || DEFAULT_USER_SETTINGS.examDate,
+  };
 }
 
 function loadCachedTopics(): Topic[] {
@@ -656,15 +697,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .then((cloudSettings) => {
         if (cloudSettings && cloudSettings.examDate) {
           const cached = loadCachedSettings();
-          const merged: UserSettings = {
-            ...cached,
-            ...cloudSettings,
-            examDate: (cloudSettings.examDate && cloudSettings.examDate.trim()) || cached.examDate,
-          };
+          const merged = resolveSettingsConflict(cached, cloudSettings);
           saveCachedSettings(merged);
           dispatch({ type: 'UPDATE_SETTINGS', payload: merged });
           dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: cloudSettings.lastSyncedAt || new Date().toISOString() });
+          dispatch({ type: 'SET_LAST_SYNCED', payload: merged.lastSyncedAt || new Date().toISOString() });
+
+          const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
+          const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
+          if (cachedTime > cloudTime) {
+            saveSettingsToFirestore(merged).catch((err) => {
+              console.warn('[Firestore Sync] Upgrading cloud settings notice:', err);
+            });
+          }
         } else {
           const cached = loadCachedSettings();
           saveSettingsToFirestore(cached).catch((err) => {
@@ -809,15 +854,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       onSettingsChange: (cloudSettings) => {
         if (cloudSettings && cloudSettings.examDate) {
           const cached = loadCachedSettings();
-          const merged: UserSettings = {
-            ...cached,
-            ...cloudSettings,
-            examDate: (cloudSettings.examDate && cloudSettings.examDate.trim()) || cached.examDate,
-          };
+          const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
+          const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
+          // If local has strictly newer timestamp, do not revert to older snapshot
+          if (cachedTime > cloudTime && cached.examDate) {
+            return;
+          }
+
+          const merged = resolveSettingsConflict(cached, cloudSettings);
           saveCachedSettings(merged);
           dispatch({ type: 'UPDATE_SETTINGS', payload: merged });
           dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: cloudSettings.lastSyncedAt || new Date().toISOString() });
+          dispatch({ type: 'SET_LAST_SYNCED', payload: merged.lastSyncedAt || new Date().toISOString() });
         }
       },
       onError: (err) => {

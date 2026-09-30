@@ -144,6 +144,7 @@ export const STORAGE_KEYS = {
   REVISIONS: 'ca_tracker_revisions',
   TESTS: 'ca_tracker_tests',
   SETTINGS: 'ca_tracker_settings',
+  TARGET_EXAM_DATE: 'ca_tracker_target_exam_date',
   THEME: 'ca_theme',
   STREAK: 'ca_tracker_streak',
 };
