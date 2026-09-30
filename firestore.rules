@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Single-user CA Foundation Tracker data root (multi-device sync without authentication)
+    match /users/{userId}/{document=**} {
+      allow read, write: if true;
+    }
+    
+    // Public/Shared read-only syllabus blueprints
+    match /syllabus_blueprints/{version} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+

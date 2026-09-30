@@ -1,0 +1,342 @@
+[
+  {
+    "id": "sch-09-01",
+    "date": "2026-09-09",
+    "displayDate": "9 Sept",
+    "title": "P&C complete, ch-5",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-05",
+    "chapterName": "Permutations and Combinations",
+    "topicIds": [
+      "qa-top-0501"
+    ],
+    "completed": false,
+    "order": 1
+  },
+  {
+    "id": "sch-09-02",
+    "date": "2026-09-09",
+    "displayDate": "9 Sept",
+    "title": "SOGA, 1930 complete",
+    "subjectId": "paper2",
+    "chapterId": "law-ch-03",
+    "chapterName": "The Sale of Goods Act, 1930",
+    "topicIds": [
+      "law-top-0301",
+      "law-top-0302",
+      "law-top-0303",
+      "law-top-0304"
+    ],
+    "completed": false,
+    "order": 2
+  },
+  {
+    "id": "sch-09-03",
+    "date": "2026-09-09",
+    "displayDate": "9 Sept",
+    "title": "Rectification of errors complete, ch-2",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-02",
+    "chapterName": "Accounting Process",
+    "topicIds": [
+      "acc-top-0204"
+    ],
+    "completed": false,
+    "order": 3
+  },
+  {
+    "id": "sch-09-04",
+    "date": "2026-09-09",
+    "displayDate": "9 Sept",
+    "title": "BRS complete, ch-3",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-03",
+    "chapterName": "Bank Reconciliation Statement (BRS)",
+    "topicIds": [
+      "acc-top-0301"
+    ],
+    "completed": false,
+    "order": 4
+  },
+  {
+    "id": "sch-10-01",
+    "date": "2026-09-10",
+    "displayDate": "10 Sept",
+    "title": "Annuity, ch-4",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-04",
+    "chapterName": "Time Value of Money (TVM)",
+    "topicIds": [
+      "qa-top-0401"
+    ],
+    "completed": false,
+    "order": 5
+  },
+  {
+    "id": "sch-10-02",
+    "date": "2026-09-10",
+    "displayDate": "10 Sept",
+    "title": "IPA, 1932",
+    "subjectId": "paper2",
+    "chapterId": "law-ch-04",
+    "chapterName": "The Indian Partnership Act, 1932",
+    "topicIds": [
+      "law-top-0401",
+      "law-top-0402",
+      "law-top-0403"
+    ],
+    "completed": false,
+    "order": 6
+  },
+  {
+    "id": "sch-11-01",
+    "date": "2026-09-11",
+    "displayDate": "11 Sept",
+    "title": "Inventories, ch-4",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-04",
+    "chapterName": "Inventories",
+    "topicIds": [
+      "acc-top-0401"
+    ],
+    "completed": false,
+    "order": 7
+  },
+  {
+    "id": "sch-11-02",
+    "date": "2026-09-11",
+    "displayDate": "11 Sept",
+    "title": "Depreciation, ch-5",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-05",
+    "chapterName": "Depreciation and Amortisation",
+    "topicIds": [
+      "acc-top-0501"
+    ],
+    "completed": false,
+    "order": 8
+  },
+  {
+    "id": "sch-11-03",
+    "date": "2026-09-11",
+    "displayDate": "11 Sept",
+    "title": "Linear eq, ch-3",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-02",
+    "chapterName": "Equations & Linear Inequalities",
+    "topicIds": [
+      "qa-top-0201"
+    ],
+    "completed": false,
+    "order": 9
+  },
+  {
+    "id": "sch-12-01",
+    "date": "2026-09-12",
+    "displayDate": "12 Sept",
+    "title": "Revision: P&C, SOGA 1930 & Rectification of Errors",
+    "isRevision": true,
+    "notes": "Consolidate Permutations & Combinations, Sale of Goods Act, Rectification of Errors, and problem sets",
+    "completed": false,
+    "order": 10
+  },
+  {
+    "id": "sch-13-01",
+    "date": "2026-09-13",
+    "displayDate": "13 Sept",
+    "title": "Revision: BRS, Annuity, IPA, Inventories & Depreciation",
+    "isRevision": true,
+    "notes": "Consolidate BRS, TVM Annuities, Indian Partnership Act, Inventories, and Depreciation formulas",
+    "completed": false,
+    "order": 11
+  },
+  {
+    "id": "sch-14-01",
+    "date": "2026-09-14",
+    "displayDate": "14 Sept",
+    "title": "AP, GP, ch-6, Part-I",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-06",
+    "chapterName": "Sequence and Series (AP and GP)",
+    "topicIds": [
+      "qa-top-0601"
+    ],
+    "completed": false,
+    "order": 12
+  },
+  {
+    "id": "sch-14-02",
+    "date": "2026-09-14",
+    "displayDate": "14 Sept",
+    "title": "LLP Act, ch-5",
+    "subjectId": "paper2",
+    "chapterId": "law-ch-05",
+    "chapterName": "The Limited Liability Partnership Act, 2008",
+    "topicIds": [
+      "law-top-0501"
+    ],
+    "completed": false,
+    "order": 13
+  },
+  {
+    "id": "sch-14-03",
+    "date": "2026-09-14",
+    "displayDate": "14 Sept",
+    "title": "BOE, ch-6",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-06",
+    "chapterName": "Bills of Exchange and Promissory Notes",
+    "topicIds": [
+      "acc-top-0601"
+    ],
+    "completed": false,
+    "order": 14
+  },
+  {
+    "id": "sch-15-01",
+    "date": "2026-09-15",
+    "displayDate": "15 Sept",
+    "title": "AP, GP; Sets Part-I",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-06",
+    "chapterName": "GP & Sets Part-I",
+    "topicIds": [
+      "qa-top-0601"
+    ],
+    "completed": false,
+    "order": 15
+  },
+  {
+    "id": "sch-15-02",
+    "date": "2026-09-15",
+    "displayDate": "15 Sept",
+    "title": "Companies Act, ch-6",
+    "subjectId": "paper2",
+    "chapterId": "law-ch-06",
+    "chapterName": "The Companies Act, 2013",
+    "topicIds": [
+      "law-top-0601"
+    ],
+    "completed": false,
+    "order": 16
+  },
+  {
+    "id": "sch-16-01",
+    "date": "2026-09-16",
+    "displayDate": "16 Sept",
+    "title": "Sets, ch-7",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-07",
+    "chapterName": "Sets, Relations, and Functions",
+    "topicIds": [
+      "qa-top-0701"
+    ],
+    "completed": false,
+    "order": 17
+  },
+  {
+    "id": "sch-16-02",
+    "date": "2026-09-16",
+    "displayDate": "16 Sept",
+    "title": "Final Accounts, ch-7",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-07",
+    "chapterName": "Preparation of Final Accounts of Sole Proprietors",
+    "topicIds": [
+      "acc-top-0701",
+      "acc-top-0702"
+    ],
+    "completed": false,
+    "order": 18
+  },
+  {
+    "id": "sch-17-01",
+    "date": "2026-09-17",
+    "displayDate": "17 Sept",
+    "title": "Calculus, Part-I",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-08",
+    "chapterName": "Basic Applications of Calculus",
+    "topicIds": [
+      "qa-top-0801"
+    ],
+    "completed": false,
+    "order": 19
+  },
+  {
+    "id": "sch-17-02",
+    "date": "2026-09-17",
+    "displayDate": "17 Sept",
+    "title": "NIA 1881, ch-8",
+    "subjectId": "paper2",
+    "chapterId": "law-ch-07",
+    "chapterName": "The Negotiable Instruments Act, 1881",
+    "topicIds": [
+      "law-top-0701"
+    ],
+    "completed": false,
+    "order": 20
+  },
+  {
+    "id": "sch-18-01",
+    "date": "2026-09-18",
+    "displayDate": "18 Sept",
+    "title": "Calculus, ch-8",
+    "subjectId": "paper3",
+    "chapterId": "qa-ch-08",
+    "chapterName": "Basic Applications of Calculus",
+    "topicIds": [
+      "qa-top-0801"
+    ],
+    "completed": false,
+    "order": 21
+  },
+  {
+    "id": "sch-18-02",
+    "date": "2026-09-18",
+    "displayDate": "18 Sept",
+    "title": "NPO, ch-8",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-08",
+    "chapterName": "Financial Statements of Not-for-Profit Organisations (NPO)",
+    "topicIds": [
+      "acc-top-0801"
+    ],
+    "completed": false,
+    "order": 22
+  },
+  {
+    "id": "sch-18-03",
+    "date": "2026-09-18",
+    "displayDate": "18 Sept",
+    "title": "Incomplete records, ch-9",
+    "subjectId": "paper1",
+    "chapterId": "acc-ch-09",
+    "chapterName": "Accounts from Incomplete Records (Single Entry System)",
+    "topicIds": [
+      "acc-top-0901"
+    ],
+    "completed": false,
+    "order": 23
+  },
+  {
+    "id": "sch-19-01",
+    "date": "2026-09-19",
+    "displayDate": "19 Sept",
+    "title": "Revision: AP/GP, Sets, Calculus & LLP Act",
+    "isRevision": true,
+    "notes": "Consolidate Sequence & Series, Sets, Calculus, and LLP Act provisions",
+    "completed": false,
+    "order": 24
+  },
+  {
+    "id": "sch-20-01",
+    "date": "2026-09-20",
+    "displayDate": "20 Sept",
+    "title": "Revision: Companies Act, Final Accounts, NPO, Incomplete Records & NIA 1881",
+    "isRevision": true,
+    "notes": "Comprehensive revision across Companies Act, Final Accounts, NPO, Incomplete Records, and Negotiable Instruments Act",
+    "completed": false,
+    "order": 25
+  }
+]
