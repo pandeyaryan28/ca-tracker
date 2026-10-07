@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flame, Clock, Cloud, RefreshCw, Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { UserMenu } from '@/components/auth/UserMenu';
 import { useData } from '@/context/DataContext';
 import { NavigationTab } from '@/types';
 import { cn } from '@/lib/utils';
@@ -122,6 +123,9 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
             )}
           </span>
         </div>
+
+        {/* User Account / Profile Menu */}
+        <UserMenu />
 
         {/* Theme Toggle */}
         <ThemeToggle />

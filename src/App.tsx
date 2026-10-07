@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { DataProvider } from '@/context/DataContext';
 import { AppShell } from '@/components/layout/AppShell';
 import { NavigationTab } from '@/types';
@@ -48,9 +49,11 @@ export const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <DataProvider>
-        <AppContent />
-      </DataProvider>
+      <AuthProvider>
+        <DataProvider>
+          <AppContent />
+        </DataProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

@@ -29,8 +29,10 @@ import {
   getTodayDateString,
   calculateNextRevisionDate,
 } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 import {
   SINGLE_USER_ID,
+  isTestEnv,
   saveTopicToFirestore,
   deleteTopicFromFirestore,
   saveTestToFirestore,
@@ -683,6 +685,11 @@ function dataReducer(state: DataState, action: DataAction): DataState {
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const currentUserId = user?.uid || (isTestEnv ? SINGLE_USER_ID : null);
+  const currentUserIdRef = useRef<string | null>(currentUserId);
+  currentUserIdRef.current = currentUserId;
+
   const [state, dispatch] = useReducer(dataReducer, undefined, getInitialState);
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -690,10 +697,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initialLecturesSyncAttempted = useRef(false);
   const initialScheduleSyncAttempted = useRef(false);
 
-  // Pure Cloud Backend Real-time Synchronization Listener (no local storage dependency)
   useEffect(() => {
+    initialCloudSyncAttempted.current = false;
+    initialLecturesSyncAttempted.current = false;
+    initialScheduleSyncAttempted.current = false;
+  }, [currentUserId]);
+
+  // Real-time Cloud Synchronization Listener scoped to authenticated user
+  useEffect(() => {
+    if (!currentUserId) {
+      // In guest / unauthenticated mode, fall back to offline local storage without forbidden cloud writes
+      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: false });
+      return;
+    }
+
+    dispatch({ type: 'SET_SYNCING', payload: true });
+
     // 1. Immediate direct cloud settings hydration for instant multi-device sync
-    fetchUserSettingsFromFirestore(SINGLE_USER_ID)
+    fetchUserSettingsFromFirestore(currentUserId)
       .then((cloudSettings) => {
         if (cloudSettings && cloudSettings.examDate) {
           const cached = loadCachedSettings();
@@ -706,22 +727,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
           const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
           if (cachedTime > cloudTime) {
-            saveSettingsToFirestore(merged).catch((err) => {
+            saveSettingsToFirestore(merged, currentUserId).catch((err) => {
               console.warn('[Firestore Sync] Upgrading cloud settings notice:', err);
             });
           }
         } else {
           const cached = loadCachedSettings();
-          saveSettingsToFirestore(cached).catch((err) => {
+          saveSettingsToFirestore(cached, currentUserId).catch((err) => {
             console.warn('[Firestore Sync] Cloud settings seeding notice:', err);
           });
         }
       })
       .catch((err) => {
         console.warn('[Firestore Sync] Direct settings fetch notice:', err);
+      })
+      .finally(() => {
+        dispatch({ type: 'SET_SYNCING', payload: false });
       });
 
-    const unsubscribe = subscribeToUserData(SINGLE_USER_ID, {
+    const unsubscribe = subscribeToUserData(currentUserId, {
       onTopicsChange: (cloudTopics) => {
         const cloudMap = new Map(cloudTopics.map((t) => [t.id, t]));
         const missingSeed = seed.topics.filter((seedTop) => !cloudMap.has(seedTop.id));
@@ -761,7 +785,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Auto-sync merged topics to Firestore
           if (!initialCloudSyncAttempted.current) {
             initialCloudSyncAttempted.current = true;
-            syncAndFillSyllabusWithCloud(seed.topics).catch((err) => {
+            syncAndFillSyllabusWithCloud(seed.topics, currentUserId).catch((err) => {
               console.warn('[Firestore Sync] Cloud syllabus initialization warning:', err);
             });
           }
@@ -772,7 +796,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (!initialCloudSyncAttempted.current) {
           initialCloudSyncAttempted.current = true;
           // Seed cloud backend with authoritative blueprint syllabus while preserving any existing data
-          syncAndFillSyllabusWithCloud(seed.topics).then(() => {
+          syncAndFillSyllabusWithCloud(seed.topics, currentUserId).then(() => {
             dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
             dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
           }).catch((err) => {
@@ -806,7 +830,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Auto-backfill missing lectures into Firestore
           if (!initialLecturesSyncAttempted.current) {
             initialLecturesSyncAttempted.current = true;
-            syncLecturesWithCloud(seedLectures).catch((err) => {
+            syncLecturesWithCloud(seedLectures, currentUserId).catch((err) => {
               console.warn('[Firestore Sync] Lectures cloud backfill warning:', err);
             });
           }
@@ -816,7 +840,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
         } else if (!initialLecturesSyncAttempted.current) {
           initialLecturesSyncAttempted.current = true;
-          syncLecturesWithCloud(seedLectures).then((merged) => {
+          syncLecturesWithCloud(seedLectures, currentUserId).then((merged) => {
             dispatch({ type: 'SET_LECTURES', payload: merged });
             dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
             dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
@@ -832,7 +856,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
         } else if (!initialScheduleSyncAttempted.current) {
           initialScheduleSyncAttempted.current = true;
-          syncScheduleWithCloud(seedSchedule).then((merged) => {
+          syncScheduleWithCloud(seedSchedule, currentUserId).then((merged) => {
             dispatch({ type: 'SET_SCHEDULE', payload: merged });
             dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
             dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
@@ -870,13 +894,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
       onError: (err) => {
         console.warn('[Firestore Sync] Cloud connection notice:', err.message);
+        dispatch({ type: 'SET_CLOUD_CONNECTED', payload: false });
       },
     });
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [currentUserId]);
 
   // Computed values
   const metrics = useMemo(() => {
@@ -931,7 +956,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (status === 'pending') {
         updated.completedAt = undefined;
       }
-      saveTopicToFirestore(updated);
+      if (currentUserIdRef.current) {
+        saveTopicToFirestore(updated, currentUserIdRef.current);
+      }
 
       // Auto-schedule revision R1 if setting enabled
       if (status === 'completed' && state.settings.autoScheduleRevisions) {
@@ -953,7 +980,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             createdAt: nowIso,
             updatedAt: nowIso,
           };
-          saveRevisionToFirestore(newRev);
+          if (currentUserIdRef.current) {
+            saveRevisionToFirestore(newRev, currentUserIdRef.current);
+          }
         }
       }
     }
@@ -990,7 +1019,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (status === 'pending') {
           updated.completedAt = undefined;
         }
-        saveTopicToFirestore(updated).catch(() => {});
+        if (currentUserIdRef.current) {
+          saveTopicToFirestore(updated, currentUserIdRef.current).catch(() => {});
+        }
 
         // Auto-schedule revision R1 if setting enabled
         if (status === 'completed' && stateRef.current.settings.autoScheduleRevisions) {
@@ -1012,7 +1043,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createdAt: nowIso,
               updatedAt: nowIso,
             };
-            saveRevisionToFirestore(newRev).catch(() => {});
+            if (currentUserIdRef.current) {
+              saveRevisionToFirestore(newRev, currentUserIdRef.current).catch(() => {});
+            }
           }
         }
       }
@@ -1028,7 +1061,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const currentTopic = state.topics.find((t) => t.id === topicId);
     if (currentTopic) {
       const updated = { ...currentTopic, ...updates };
-      saveTopicToFirestore(updated);
+      if (currentUserIdRef.current) {
+        saveTopicToFirestore(updated, currentUserIdRef.current);
+      }
     }
     dispatch({ type: 'UPDATE_TOPIC', payload: { topicId, updates } });
   };
@@ -1047,15 +1082,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       estimatedHours: estHours,
       isCustom: true,
     };
-    saveTopicToFirestore(newTopic);
+    if (currentUserIdRef.current) {
+      saveTopicToFirestore(newTopic, currentUserIdRef.current);
+    }
     dispatch({ type: 'ADD_TOPIC', payload: newTopic });
   };
 
   const deleteTopic = (topicId: string) => {
-    deleteTopicFromFirestore(topicId);
-    const linkedRev = state.revisions.find((r) => r.topicId === topicId);
-    if (linkedRev) {
-      deleteRevisionFromFirestore(linkedRev.id);
+    if (currentUserIdRef.current) {
+      deleteTopicFromFirestore(topicId, currentUserIdRef.current);
+      const linkedRev = state.revisions.find((r) => r.topicId === topicId);
+      if (linkedRev) {
+        deleteRevisionFromFirestore(linkedRev.id, currentUserIdRef.current);
+      }
     }
     dispatch({ type: 'DELETE_TOPIC', payload: { topicId } });
   };
@@ -1074,7 +1113,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isPassed,
       createdAt: new Date().toISOString(),
     };
-    saveTestToFirestore(newTest);
+    if (currentUserIdRef.current) {
+      saveTestToFirestore(newTest, currentUserIdRef.current);
+    }
     dispatch({ type: 'ADD_TEST', payload: newTest });
   };
 
@@ -1096,13 +1137,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isPassed: totalMarks > 0 && percentage >= 40.0,
         };
       }
-      saveTestToFirestore({ ...existing, ...enrichedUpdates });
+      if (currentUserIdRef.current) {
+        saveTestToFirestore({ ...existing, ...enrichedUpdates }, currentUserIdRef.current);
+      }
     }
     dispatch({ type: 'UPDATE_TEST', payload: { testId, updates: enrichedUpdates } });
   };
 
   const deleteTest = (testId: string) => {
-    deleteTestFromFirestore(testId);
+    if (currentUserIdRef.current) {
+      deleteTestFromFirestore(testId, currentUserIdRef.current);
+    }
     dispatch({ type: 'DELETE_TEST', payload: { testId } });
   };
 
@@ -1114,14 +1159,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: nowIso,
       updatedAt: nowIso,
     };
-    saveRevisionToFirestore(newRev);
+    if (currentUserIdRef.current) {
+      saveRevisionToFirestore(newRev, currentUserIdRef.current);
+    }
     dispatch({ type: 'ADD_REVISION', payload: newRev });
   };
 
   const updateRevision = (revisionId: string, updates: Partial<RevisionRecord>) => {
     const existing = state.revisions.find((r) => r.id === revisionId);
     if (existing) {
-      saveRevisionToFirestore({ ...existing, ...updates, updatedAt: new Date().toISOString() });
+      if (currentUserIdRef.current) {
+        saveRevisionToFirestore({ ...existing, ...updates, updatedAt: new Date().toISOString() }, currentUserIdRef.current);
+      }
     }
     dispatch({ type: 'UPDATE_REVISION', payload: { revisionId, updates } });
   };
@@ -1144,7 +1193,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         mistakesNotes: mistakesNotes !== undefined ? mistakesNotes : rev.mistakesNotes,
         updatedAt: nowIso,
       };
-      saveRevisionToFirestore(updatedRev);
+      if (currentUserIdRef.current) {
+        saveRevisionToFirestore(updatedRev, currentUserIdRef.current);
+      }
     } else {
       const topic = state.topics.find((t) => t.id === topicId);
       if (topic) {
@@ -1164,7 +1215,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: nowIso,
           updatedAt: nowIso,
         };
-        saveRevisionToFirestore(newRev);
+        if (currentUserIdRef.current) {
+          saveRevisionToFirestore(newRev, currentUserIdRef.current);
+        }
       }
     }
 
@@ -1172,7 +1225,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteRevision = (revisionId: string) => {
-    deleteRevisionFromFirestore(revisionId);
+    if (currentUserIdRef.current) {
+      deleteRevisionFromFirestore(revisionId, currentUserIdRef.current);
+    }
     dispatch({ type: 'DELETE_REVISION', payload: { revisionId } });
   };
 
@@ -1185,7 +1240,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     saveCachedSettings(newSettings);
     dispatch({ type: 'UPDATE_SETTINGS', payload: { ...updates, lastSyncedAt: nowIso } });
-    await saveSettingsToFirestore(newSettings);
+    if (currentUserIdRef.current) {
+      await saveSettingsToFirestore(newSettings, currentUserIdRef.current);
+    }
   };
 
   const resetToDefaultSyllabus = (options?: ResetSyllabusOptions) => {
@@ -1200,12 +1257,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const shouldPreserveSettings = options?.preserveSettings !== false;
     const finalSettings = shouldPreserveSettings ? state.settings : DEFAULT_USER_SETTINGS;
 
-    batchUploadAllData({
-      topics: finalTopics,
-      revisions: finalRevs,
-      tests: finalTests,
-      settings: finalSettings,
-    }).catch((err) => console.warn('[Firestore Sync] Reset syllabus sync warning:', err));
+    if (currentUserIdRef.current) {
+      batchUploadAllData({
+        topics: finalTopics,
+        revisions: finalRevs,
+        tests: finalTests,
+        settings: finalSettings,
+      }, currentUserIdRef.current).catch((err) => console.warn('[Firestore Sync] Reset syllabus sync warning:', err));
+    }
 
     dispatch({
       type: 'RESET_SYLLABUS',
@@ -1217,21 +1276,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'IMPORT_DATA', payload: { data: payload, mode } });
 
     // Sync newly imported or merged dataset directly to cloud
-    setTimeout(() => {
-      batchUploadAllData({
-        topics: stateRef.current.topics,
-        revisions: stateRef.current.revisions,
-        tests: stateRef.current.tests,
-        settings: stateRef.current.settings,
-      }).catch((err) => console.warn('[Firestore Sync] Import sync warning:', err));
-    }, 50);
+    if (currentUserIdRef.current) {
+      const uid = currentUserIdRef.current;
+      setTimeout(() => {
+        batchUploadAllData({
+          topics: stateRef.current.topics,
+          revisions: stateRef.current.revisions,
+          tests: stateRef.current.tests,
+          settings: stateRef.current.settings,
+        }, uid).catch((err) => console.warn('[Firestore Sync] Import sync warning:', err));
+      }, 50);
+    }
   };
 
   const syncWithCloud = async () => {
+    if (!currentUserIdRef.current) return;
+    const uid = currentUserIdRef.current;
     dispatch({ type: 'SET_SYNCING', payload: true });
     try {
-      await syncAndFillSyllabusWithCloud(seed.topics);
-      await saveSettingsToFirestore(stateRef.current.settings);
+      await syncAndFillSyllabusWithCloud(seed.topics, uid);
+      await saveSettingsToFirestore(stateRef.current.settings, uid);
       dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
       dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
     } catch (err) {
@@ -1253,7 +1317,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     dispatch({ type: 'TOGGLE_LECTURE_WATCHED', payload: { lectureId, watched: nextWatched } });
-    await saveLectureToFirestore(updatedLecture);
+    if (currentUserIdRef.current) {
+      await saveLectureToFirestore(updatedLecture, currentUserIdRef.current);
+    }
   };
 
   const setSchedule = (entries: ScheduleEntry[]) => {
@@ -1272,20 +1338,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     dispatch({ type: 'TOGGLE_SCHEDULE_ENTRY', payload: { entryId, completed: nextCompleted } });
-    await saveScheduleEntryToFirestore(updatedEntry);
+    if (currentUserIdRef.current) {
+      const uid = currentUserIdRef.current;
+      await saveScheduleEntryToFirestore(updatedEntry, uid);
 
-    // If entry has mapped topics, update Firestore for each topic
-    if (entry.topicIds && entry.topicIds.length > 0) {
-      const targetStatus: TopicStatus = nextCompleted ? 'completed' : 'pending';
-      for (const tId of entry.topicIds) {
-        const top = stateRef.current.topics.find((t) => t.id === tId);
-        if (top) {
-          await saveTopicToFirestore({
-            ...top,
-            status: targetStatus,
-            completedAt: nextCompleted ? (top.completedAt || nowIso) : undefined,
-            startedAt: nextCompleted ? (top.startedAt || nowIso) : top.startedAt,
-          });
+      // If entry has mapped topics, update Firestore for each topic
+      if (entry.topicIds && entry.topicIds.length > 0) {
+        const targetStatus: TopicStatus = nextCompleted ? 'completed' : 'pending';
+        for (const tId of entry.topicIds) {
+          const top = stateRef.current.topics.find((t) => t.id === tId);
+          if (top) {
+            await saveTopicToFirestore({
+              ...top,
+              status: targetStatus,
+              completedAt: nextCompleted ? (top.completedAt || nowIso) : undefined,
+              startedAt: nextCompleted ? (top.startedAt || nowIso) : top.startedAt,
+            }, uid);
+          }
         }
       }
     }
@@ -1300,20 +1369,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       order,
     };
     dispatch({ type: 'ADD_SCHEDULE_ENTRY', payload: newEntry });
-    await saveScheduleEntryToFirestore(newEntry);
+    if (currentUserIdRef.current) {
+      await saveScheduleEntryToFirestore(newEntry, currentUserIdRef.current);
+    }
   };
 
   const updateScheduleEntry = async (entryId: string, updates: Partial<ScheduleEntry>) => {
     const existing = stateRef.current.schedule.find((s) => s.id === entryId);
     if (existing) {
       const updated = { ...existing, ...updates };
-      await saveScheduleEntryToFirestore(updated);
+      if (currentUserIdRef.current) {
+        await saveScheduleEntryToFirestore(updated, currentUserIdRef.current);
+      }
     }
     dispatch({ type: 'UPDATE_SCHEDULE_ENTRY', payload: { entryId, updates } });
   };
 
   const deleteScheduleEntry = async (entryId: string) => {
-    await deleteScheduleEntryFromFirestore(entryId);
+    if (currentUserIdRef.current) {
+      await deleteScheduleEntryFromFirestore(entryId, currentUserIdRef.current);
+    }
     dispatch({ type: 'DELETE_SCHEDULE_ENTRY', payload: { entryId } });
   };
 

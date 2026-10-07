@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "ca-tracker-ap28-2026"
+    "default": "ca-tracker-ap28-2026",
+    "nayra": "nayra-platform-2026"
   }
 }

@@ -15,17 +15,17 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
-import { getAuth, Auth } from 'firebase/auth';
+import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
 import { Topic, RevisionRecord, TestRecord, UserSettings, Lecture, ScheduleEntry } from '@/types';
 
-// Standard Firebase configuration for CA Tracker project
+// Unified Firebase configuration for NAYRA and CA Tracker platform
 const firebaseConfig = {
-  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || 'AIzaSyCjkT4s7WOWLzTCLd8LWcwiOY59-_RHtq0',
-  authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || 'ca-tracker-ap28-2026.firebaseapp.com',
-  projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID || 'ca-tracker-ap28-2026',
-  storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || 'ca-tracker-ap28-2026.firebasestorage.app',
-  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || '1038633329972',
-  appId: import.meta.env?.VITE_FIREBASE_APP_ID || '1:1038633329972:web:fc067ebe3d82d1f4da7161',
+  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || 'AIzaSyDC7zjTuvEIRV-e-dntemxNu6zXVL0DX1I',
+  authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || 'nayra-platform-2026.firebaseapp.com',
+  projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID || 'nayra-platform-2026',
+  storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || 'nayra-platform-2026.firebasestorage.app',
+  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || '413144887088',
+  appId: import.meta.env?.VITE_FIREBASE_APP_ID || '1:413144887088:web:bd35b4bdd1bfb682bc22f5',
 };
 
 // Singleton Firebase App Initialization
@@ -48,7 +48,12 @@ try {
 export const db: Firestore = firestoreInstance;
 export const auth: Auth = getAuth(app);
 
-const isTestEnv =
+export const googleAuthProvider = new GoogleAuthProvider();
+googleAuthProvider.setCustomParameters({
+  prompt: 'select_account',
+});
+
+export const isTestEnv =
   (typeof process !== 'undefined' && (process.env?.NODE_ENV === 'test' || Boolean(process.env?.VITEST))) ||
   (typeof window !== 'undefined' && Boolean((window as any).__VITEST__));
 
