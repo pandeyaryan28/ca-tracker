@@ -4,6 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ExerciseSessionView } from '@/components/exercises/ExerciseSessionView';
 import { CrossVerificationReview } from '@/components/exercises/CrossVerificationReview';
 import { ChapterExerciseHub } from '@/components/exercises/ChapterExerciseHub';
+import { QuestionPalette } from '@/components/exercises/QuestionPalette';
 import { ExerciseQuestion, ExerciseAttempt } from '@/types';
 import { DataProvider } from '@/context/DataContext';
 
@@ -346,6 +347,43 @@ describe('Exercise Session Flow and UI Interactions', () => {
     // Press ArrowLeft -> moves back to Question 1
     fireEvent.keyDown(window, { key: 'ArrowLeft' });
     expect(screen.getByText(/Economists regard decision making as important because:/i)).toBeInTheDocument();
+  });
+
+  it('renders QuestionPalette with 2x2 filters, embedded metric strip, and review mode toggle', () => {
+    const handleSelect = vi.fn();
+
+    const { rerender } = render(
+      <QuestionPalette
+        questions={sampleQuestions}
+        currentIndex={0}
+        selectedAnswers={{ 'beco-ch01-q001': 'd' }}
+        markedForReview={{ 'beco-ch01-q001': true }}
+        onSelectQuestion={handleSelect}
+        isReviewMode={false}
+      />
+    );
+
+    // Verify filter buttons exist
+    expect(screen.getByRole('button', { name: /Answered \(1\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Marked \(1\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pending \(1\)/i })).toBeInTheDocument();
+
+    // Verify footer stats
+    expect(screen.getAllByText('Answered').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('Pending')).toBeInTheDocument();
+
+    // In review mode, session footer is hidden
+    rerender(
+      <QuestionPalette
+        questions={sampleQuestions}
+        currentIndex={0}
+        selectedAnswers={{ 'beco-ch01-q001': 'd' }}
+        markedForReview={{}}
+        onSelectQuestion={handleSelect}
+        isReviewMode={true}
+      />
+    );
+    expect(screen.queryByText('Pending')).not.toBeInTheDocument();
   });
 });
 

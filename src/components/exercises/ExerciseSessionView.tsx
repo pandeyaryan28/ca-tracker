@@ -262,13 +262,13 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   const isCurrentMarked = Boolean(markedForReview[currentQ?.id]);
   const currentSelectedOption = selectedAnswers[currentQ?.id];
   const isPracticeAnswerVisible = Boolean(showPracticeAnswer[currentQ?.id]);
-  const progressPercentage = Math.round(((currentIndex + 1) / totalQuestions) * 100);
+  const progressPercentage = totalQuestions > 0 ? Math.round(((currentIndex + 1) / totalQuestions) * 100) : 0;
   const displayUnitTitle = unitTitle || currentQ?.unitTitle;
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
       {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
@@ -330,7 +330,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             <Grid className="w-4 h-4" />
             <span className="hidden sm:inline">Palette</span>
             <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
-              {currentIndex + 1}/{totalQuestions}
+              {totalQuestions > 0 ? currentIndex + 1 : 0}/{totalQuestions}
             </span>
           </Button>
 
@@ -339,7 +339,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="primary"
             size="sm"
             onClick={() => setShowSubmitModal(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold shadow-xs"
+            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold shadow-sm"
           >
             Submit
           </Button>
@@ -361,12 +361,12 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Question Card & Controls (8 cols) */}
         <div className="lg:col-span-8 flex flex-col gap-4">
-          <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+          <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
             {/* Session Progress Bar */}
             <div className="mb-4">
               <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium">
                 <span>
-                  Progress: {currentIndex + 1} of {totalQuestions}
+                  Progress: {totalQuestions > 0 ? currentIndex + 1 : 0} of {totalQuestions}
                 </span>
                 <span>{progressPercentage}% Complete</span>
               </div>
@@ -410,7 +410,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             </div>
 
             {/* Context Box (Tables, case figures, or problem prompt) */}
-            {currentQ.context && currentQ.context.trim() && !currentQ.context.includes('TEST YOUR KNOWLEDGE') && !currentQ.context.includes('Multiple Choice') && (
+            {currentQ.context && currentQ.context.trim() && !/test your knowledge/i.test(currentQ.context) && !/multiple choice/i.test(currentQ.context) && (
               <div className="mb-5 p-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
                 {currentQ.context}
               </div>
@@ -437,7 +437,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                       'group flex items-center justify-between gap-3.5 p-4 min-h-[48px] rounded-md border text-left transition-all duration-150 cursor-pointer text-sm leading-snug',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-zinc-100 focus-visible:ring-offset-2',
                       isSelected
-                        ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/95 text-zinc-950 dark:text-white font-medium ring-1 ring-zinc-900 dark:ring-zinc-100 shadow-xs'
+                        ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/95 text-zinc-950 dark:text-white font-medium ring-1 ring-zinc-900 dark:ring-zinc-100 shadow-sm'
                         : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40'
                     )}
                   >
@@ -462,7 +462,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                         </span>
                       ) : (
-                        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 dark:text-zinc-500 px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-850">
+                        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 dark:text-zinc-500 px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800">
                           [{shortcutKey}]
                         </span>
                       )}
@@ -599,7 +599,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
         {/* Right Column: Desktop Persistent Question Palette (4 cols) */}
         <div className="hidden lg:block lg:col-span-4">
-          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs sticky top-24">
+          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm sticky top-24">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                 Question Palette
@@ -616,42 +616,14 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               markedForReview={markedForReview}
               onSelectQuestion={(idx) => setCurrentIndex(idx)}
             />
-
-            {/* 3-Column Metric Strip */}
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
-                <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Answered
-                </span>
-                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-200 font-mono mt-0.5">
-                  {answeredCount}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
-                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-                  Marked
-                </span>
-                <span className="text-sm font-bold text-amber-800 dark:text-amber-200 font-mono mt-0.5">
-                  {markedCount}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/60">
-                <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-                  Pending
-                </span>
-                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 font-mono mt-0.5">
-                  {unansweredCount}
-                </span>
-              </div>
-            </div>
           </Card>
         </div>
       </div>
 
       {/* Mobile/Tablet Palette Modal */}
       {showPaletteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-md p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
                 Question Palette
@@ -677,34 +649,6 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               }}
             />
 
-            {/* 3-Column Metric Strip for Mobile */}
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
-                <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Answered
-                </span>
-                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-200 font-mono mt-0.5">
-                  {answeredCount}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
-                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-                  Marked
-                </span>
-                <span className="text-sm font-bold text-amber-800 dark:text-amber-200 font-mono mt-0.5">
-                  {markedCount}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/60">
-                <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-                  Pending
-                </span>
-                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 font-mono mt-0.5">
-                  {unansweredCount}
-                </span>
-              </div>
-            </div>
-
             <Button
               variant="outline"
               size="sm"
@@ -719,8 +663,8 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
       {/* Submit Confirmation Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-md p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
             <div>
               <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 Submit Exercise?

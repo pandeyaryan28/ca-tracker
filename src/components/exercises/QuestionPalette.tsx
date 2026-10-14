@@ -10,6 +10,7 @@ interface QuestionPaletteProps {
   markedForReview: Record<string, boolean>;
   onSelectQuestion: (index: number) => void;
   isReviewMode?: boolean;
+  showFooterStats?: boolean;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   markedForReview,
   onSelectQuestion,
   isReviewMode = false,
+  showFooterStats = !isReviewMode,
   className,
 }) => {
   const [sessionFilter, setSessionFilter] = useState<PaletteSessionFilter>('all');
@@ -71,46 +73,46 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
         {!isReviewMode ? (
           <>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs bg-emerald-600 dark:bg-emerald-500 shrink-0" />
+              <span className="w-3 h-3 rounded-sm bg-emerald-600 dark:bg-emerald-500 shrink-0" />
               <span className="truncate">Answered</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs bg-amber-500 dark:bg-amber-500 shrink-0 flex items-center justify-center">
+              <span className="w-3 h-3 rounded-sm bg-amber-500 dark:bg-amber-500 shrink-0 flex items-center justify-center">
                 <Bookmark className="w-2 h-2 text-white fill-current" />
               </span>
               <span className="truncate">Marked</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0" />
+              <span className="w-3 h-3 rounded-sm border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0" />
               <span className="truncate">Unanswered</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs ring-2 ring-zinc-900 dark:ring-zinc-100 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
+              <span className="w-3 h-3 rounded-sm ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-1 dark:ring-offset-zinc-900 bg-zinc-100 dark:bg-zinc-800 shrink-0 m-0.5" />
               <span className="truncate">Current</span>
             </div>
           </>
         ) : (
           <>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs bg-emerald-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
+              <span className="w-3 h-3 rounded-sm bg-emerald-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
                 ✓
               </span>
               <span className="truncate">Correct</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs bg-rose-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
+              <span className="w-3 h-3 rounded-sm bg-rose-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
                 ✗
               </span>
               <span className="truncate">Incorrect</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs bg-amber-500 text-white shrink-0 flex items-center justify-center">
+              <span className="w-3 h-3 rounded-sm bg-amber-500 text-white shrink-0 flex items-center justify-center">
                 <Bookmark className="w-2 h-2 fill-current" />
               </span>
               <span className="truncate">Marked</span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-3 h-3 rounded-xs border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
+              <span className="w-3 h-3 rounded-sm border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
               <span className="truncate">Skipped</span>
             </div>
           </>
@@ -128,7 +130,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'all'
                   ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               All ({questions.length})
@@ -140,7 +142,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'answered'
                   ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600 dark:hover:text-emerald-400'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Answered ({answeredCount})
@@ -153,7 +155,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'marked'
                   ? 'bg-amber-600 text-white border-amber-600'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600 dark:hover:text-amber-400'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Marked ({markedCount})
@@ -166,7 +168,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'unanswered'
                   ? 'bg-zinc-700 text-white border-zinc-700 dark:bg-zinc-300 dark:text-zinc-900'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Pending ({unansweredCount})
@@ -181,7 +183,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'col-span-2 w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'all'
                   ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               All ({questions.length})
@@ -193,7 +195,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'correct'
                   ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Correct ({correctCount})
@@ -205,7 +207,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'incorrect'
                   ? 'bg-rose-600 text-white border-rose-600'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-rose-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Incorrect ({incorrectCount})
@@ -217,7 +219,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'marked'
                   ? 'bg-amber-600 text-white border-amber-600'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Marked ({markedCount})
@@ -229,7 +231,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'skipped'
                   ? 'bg-zinc-700 text-white border-zinc-700 dark:bg-zinc-300 dark:text-zinc-900'
-                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700/60'
               )}
             >
               Skipped ({skippedCount})
@@ -251,25 +253,25 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             const isMarked = Boolean(markedForReview[q.id]);
 
             let statusClass =
-              'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-750';
+              'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700';
 
             if (isReviewMode) {
               const userAnswer = selectedAnswers[q.id];
               if (!userAnswer) {
                 statusClass =
-                  'border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400';
+                  'border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400';
               } else if (userAnswer.toLowerCase() === q.correctOption.toLowerCase()) {
-                statusClass = 'bg-emerald-600 text-white border-emerald-600 font-semibold';
+                statusClass = 'bg-emerald-600 text-white border-emerald-600 font-semibold hover:bg-emerald-500';
               } else {
-                statusClass = 'bg-rose-600 text-white border-rose-600 font-semibold';
+                statusClass = 'bg-rose-600 text-white border-rose-600 font-semibold hover:bg-rose-500';
               }
             } else {
               if (isAnswered && isMarked) {
-                statusClass = 'bg-amber-600 text-white border-amber-600 font-semibold';
+                statusClass = 'bg-amber-600 text-white border-amber-600 font-semibold hover:bg-amber-500';
               } else if (isAnswered) {
-                statusClass = 'bg-emerald-600 text-white border-emerald-600 font-semibold';
+                statusClass = 'bg-emerald-600 text-white border-emerald-600 font-semibold hover:bg-emerald-500';
               } else if (isMarked) {
-                statusClass = 'bg-amber-500 text-white border-amber-500 font-semibold';
+                statusClass = 'bg-amber-500 text-white border-amber-500 font-semibold hover:bg-amber-400';
               }
             }
 
@@ -279,7 +281,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 type="button"
                 onClick={() => onSelectQuestion(idx)}
                 className={cn(
-                  'relative flex items-center justify-center h-9 w-full rounded-md border text-xs font-medium transition-all duration-150 active:scale-95 cursor-pointer',
+                  'relative flex items-center justify-center h-9 w-full rounded-md border text-xs font-medium transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm active:scale-95 cursor-pointer',
                   statusClass,
                   isCurrent &&
                     'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900 font-bold z-10'
@@ -292,7 +294,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 {/* Visibly marked flag indicator */}
                 {isMarked && (
                   <span
-                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-xs bg-amber-500 text-white flex items-center justify-center shadow-xs pointer-events-none"
+                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm pointer-events-none"
                     title="Marked for Review"
                   >
                     <Bookmark className="w-2.5 h-2.5 fill-current" />
@@ -301,6 +303,36 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* 3-Column Metric Strip */}
+      {showFooterStats && !isReviewMode && (
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+            <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+              Answered
+            </span>
+            <span className="text-sm font-bold text-emerald-800 dark:text-emerald-200 font-mono mt-0.5">
+              {answeredCount}
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
+            <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+              Marked
+            </span>
+            <span className="text-sm font-bold text-amber-800 dark:text-amber-200 font-mono mt-0.5">
+              {markedCount}
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/60">
+            <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+              Pending
+            </span>
+            <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 font-mono mt-0.5">
+              {unansweredCount}
+            </span>
+          </div>
         </div>
       )}
     </div>

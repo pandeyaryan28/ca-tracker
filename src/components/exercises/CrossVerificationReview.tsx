@@ -192,7 +192,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
       </div>
 
       {/* Primary Score & Performance Metric Card */}
-      <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+      <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-zinc-100 dark:border-zinc-800">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -479,7 +479,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   key={q.id}
                   id={`review-question-${originalIndex}`}
                   className={cn(
-                    'p-6 border bg-white dark:bg-zinc-900 transition-all shadow-xs',
+                    'p-6 border bg-white dark:bg-zinc-900 transition-all shadow-sm',
                     isMarked && 'border-l-4 border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/15',
                     highlightedQuestionId === q.id &&
                       'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900',
@@ -541,7 +541,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   </div>
 
                   {/* Context Data Table if present */}
-                  {q.context && q.context.trim() && !q.context.includes('TEST YOUR KNOWLEDGE') && !q.context.includes('Multiple Choice') && (
+                  {q.context && q.context.trim() && !/test your knowledge/i.test(q.context) && !/multiple choice/i.test(q.context) && (
                     <div className="mb-4 p-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
                       {q.context}
                     </div>
@@ -662,8 +662,8 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
         </div>
 
         {/* Right Column: Sticky Verification Matrix Palette Sidebar (4 cols) */}
-        <div className="lg:col-span-4 order-1 lg:order-2 sticky top-24">
-          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+        <div className="lg:col-span-4 order-1 lg:order-2 lg:sticky lg:top-24">
+          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                 Verification Matrix
@@ -697,7 +697,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   scrollToTarget();
                 } else {
                   setActiveFilter('all');
-                  setTimeout(scrollToTarget, 60);
+                  setTimeout(scrollToTarget, 100);
                 }
               }}
             />
