@@ -67,68 +67,68 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {/* Legend */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-600 dark:text-zinc-400 pb-2 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="grid grid-cols-2 gap-2 text-xs text-zinc-600 dark:text-zinc-400 pb-2.5 border-b border-zinc-200 dark:border-zinc-800">
         {!isReviewMode ? (
           <>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-emerald-600 dark:bg-emerald-500 shrink-0" />
-              <span>Answered</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs bg-emerald-600 dark:bg-emerald-500 shrink-0" />
+              <span className="truncate">Answered</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-amber-500 dark:bg-amber-500 shrink-0 flex items-center justify-center">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs bg-amber-500 dark:bg-amber-500 shrink-0 flex items-center justify-center">
                 <Bookmark className="w-2 h-2 text-white fill-current" />
               </span>
-              <span>Marked</span>
+              <span className="truncate">Marked</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0" />
-              <span>Unanswered</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0" />
+              <span className="truncate">Unanswered</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm ring-2 ring-zinc-900 dark:ring-zinc-100 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
-              <span>Current</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs ring-2 ring-zinc-900 dark:ring-zinc-100 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
+              <span className="truncate">Current</span>
             </div>
           </>
         ) : (
           <>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-emerald-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs bg-emerald-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
                 ✓
               </span>
-              <span>Correct</span>
+              <span className="truncate">Correct</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-rose-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs bg-rose-600 text-white shrink-0 flex items-center justify-center text-[8px] font-bold">
                 ✗
               </span>
-              <span>Incorrect</span>
+              <span className="truncate">Incorrect</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-amber-500 text-white shrink-0 flex items-center justify-center">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs bg-amber-500 text-white shrink-0 flex items-center justify-center">
                 <Bookmark className="w-2 h-2 fill-current" />
               </span>
-              <span>Marked</span>
+              <span className="truncate">Marked</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
-              <span>Skipped</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-3 h-3 rounded-xs border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0" />
+              <span className="truncate">Skipped</span>
             </div>
           </>
         )}
       </div>
 
       {/* Internal Palette Filter Tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[11px]">
+      <div className="grid grid-cols-2 gap-1.5 text-xs">
         {!isReviewMode ? (
           <>
             <button
               type="button"
               onClick={() => setSessionFilter('all')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'all'
                   ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
               All ({questions.length})
@@ -137,10 +137,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setSessionFilter('answered')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'answered'
                   ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600 dark:hover:text-emerald-400'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600 dark:hover:text-emerald-400'
               )}
             >
               Answered ({answeredCount})
@@ -150,10 +150,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               title="Filter by Marked for Review"
               onClick={() => setSessionFilter('marked')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'marked'
                   ? 'bg-amber-600 text-white border-amber-600'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600 dark:hover:text-amber-400'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600 dark:hover:text-amber-400'
               )}
             >
               Marked ({markedCount})
@@ -163,10 +163,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               title="Filter by Unanswered / Pending"
               onClick={() => setSessionFilter('unanswered')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 sessionFilter === 'unanswered'
                   ? 'bg-zinc-700 text-white border-zinc-700 dark:bg-zinc-300 dark:text-zinc-900'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
               Pending ({unansweredCount})
@@ -178,10 +178,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setReviewFilter('all')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'col-span-2 w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'all'
                   ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
               All ({questions.length})
@@ -190,10 +190,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setReviewFilter('correct')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'correct'
                   ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-emerald-600'
               )}
             >
               Correct ({correctCount})
@@ -202,10 +202,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setReviewFilter('incorrect')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'incorrect'
                   ? 'bg-rose-600 text-white border-rose-600'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-rose-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-rose-600'
               )}
             >
               Incorrect ({incorrectCount})
@@ -214,10 +214,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setReviewFilter('marked')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'marked'
                   ? 'bg-amber-600 text-white border-amber-600'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-amber-600'
               )}
             >
               Marked ({markedCount})
@@ -226,10 +226,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               type="button"
               onClick={() => setReviewFilter('skipped')}
               className={cn(
-                'px-2 py-1 rounded-md border font-medium transition-colors cursor-pointer shrink-0',
+                'w-full py-1.5 px-2 rounded-md border font-medium text-center transition-colors cursor-pointer text-xs truncate',
                 reviewFilter === 'skipped'
                   ? 'bg-zinc-700 text-white border-zinc-700 dark:bg-zinc-300 dark:text-zinc-900'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
               Skipped ({skippedCount})
@@ -244,14 +244,14 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
           No questions in this filter
         </div>
       ) : (
-        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 max-h-72 overflow-y-auto pr-1">
+        <div className="grid grid-cols-5 gap-2 max-h-80 overflow-y-auto pr-1">
           {filteredIndexedQuestions.map(({ q, idx }) => {
             const isCurrent = idx === currentIndex;
             const isAnswered = Boolean(selectedAnswers[q.id]);
             const isMarked = Boolean(markedForReview[q.id]);
 
             let statusClass =
-              'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500';
+              'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-750';
 
             if (isReviewMode) {
               const userAnswer = selectedAnswers[q.id];
@@ -279,10 +279,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 type="button"
                 onClick={() => onSelectQuestion(idx)}
                 className={cn(
-                  'relative flex items-center justify-center h-9 rounded-md border text-xs font-medium transition-all duration-150 active:scale-95 cursor-pointer',
+                  'relative flex items-center justify-center h-9 w-full rounded-md border text-xs font-medium transition-all duration-150 active:scale-95 cursor-pointer',
                   statusClass,
                   isCurrent &&
-                    'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-1 dark:ring-offset-zinc-900 font-bold z-10'
+                    'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900 font-bold z-10'
                 )}
                 title={`Question ${idx + 1}${isMarked ? ' (Marked for Review)' : ''}${isAnswered ? ' (Answered)' : ''}`}
                 aria-label={`Jump to question ${idx + 1}`}
@@ -292,7 +292,7 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                 {/* Visibly marked flag indicator */}
                 {isMarked && (
                   <span
-                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-xs"
+                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-xs bg-amber-500 text-white flex items-center justify-center shadow-xs pointer-events-none"
                     title="Marked for Review"
                   >
                     <Bookmark className="w-2.5 h-2.5 fill-current" />

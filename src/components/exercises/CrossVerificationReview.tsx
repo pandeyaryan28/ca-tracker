@@ -449,49 +449,10 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           </button>
         </div>
 
-        {/* Visual Question Palette Matrix Overview */}
-        <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-              Verification Matrix (Jump to Question)
-            </h3>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              Showing status of all {totalQuestions} questions
-            </span>
-          </div>
-
-          <QuestionPalette
-            questions={questions}
-            currentIndex={selectedQuestionIndex}
-            selectedAnswers={selectedAnswers}
-            markedForReview={reviewMarkedForReview}
-            isReviewMode={true}
-            onSelectQuestion={(idx) => {
-              setSelectedQuestionIndex(idx);
-              const targetQuestion = questions[idx];
-              const isAlreadyInView = targetQuestion && filteredQuestions.some((q) => q.id === targetQuestion.id);
-
-              const scrollToTarget = () => {
-                const element = document.getElementById(`review-question-${idx}`);
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  setHighlightedQuestionId(targetQuestion?.id ?? null);
-                  setTimeout(() => setHighlightedQuestionId(null), 1500);
-                }
-              };
-
-              if (isAlreadyInView) {
-                scrollToTarget();
-              } else {
-                setActiveFilter('all');
-                setTimeout(scrollToTarget, 60);
-              }
-            }}
-          />
-        </Card>
-
-        {/* Question-by-Question Review Cards */}
-        <div className="flex flex-col gap-5 mt-2">
+        {/* 12-column Grid: Review Cards (8 cols) & Sticky Verification Matrix Palette (4 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-2">
+          {/* Left Column: Question-by-Question Review Cards (8 cols) */}
+          <div className="lg:col-span-8 flex flex-col gap-5 order-2 lg:order-1">
           {filteredQuestions.length === 0 ? (
             <div className="p-12 text-center rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -580,7 +541,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   </div>
 
                   {/* Context Data Table if present */}
-                  {q.context && (
+                  {q.context && q.context.trim() && !q.context.includes('TEST YOUR KNOWLEDGE') && !q.context.includes('Multiple Choice') && (
                     <div className="mb-4 p-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
                       {q.context}
                     </div>
@@ -699,7 +660,51 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
             })
           )}
         </div>
+
+        {/* Right Column: Sticky Verification Matrix Palette Sidebar (4 cols) */}
+        <div className="lg:col-span-4 order-1 lg:order-2 sticky top-24">
+          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+              <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+                Verification Matrix
+              </h3>
+              <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
+                {totalQuestions} Questions
+              </span>
+            </div>
+
+            <QuestionPalette
+              questions={questions}
+              currentIndex={selectedQuestionIndex}
+              selectedAnswers={selectedAnswers}
+              markedForReview={reviewMarkedForReview}
+              isReviewMode={true}
+              onSelectQuestion={(idx) => {
+                setSelectedQuestionIndex(idx);
+                const targetQuestion = questions[idx];
+                const isAlreadyInView = targetQuestion && filteredQuestions.some((q) => q.id === targetQuestion.id);
+
+                const scrollToTarget = () => {
+                  const element = document.getElementById(`review-question-${idx}`);
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setHighlightedQuestionId(targetQuestion?.id ?? null);
+                    setTimeout(() => setHighlightedQuestionId(null), 1500);
+                  }
+                };
+
+                if (isAlreadyInView) {
+                  scrollToTarget();
+                } else {
+                  setActiveFilter('all');
+                  setTimeout(scrollToTarget, 60);
+                }
+              }}
+            />
+          </Card>
+        </div>
       </div>
     </div>
-  );
+  </div>
+);
 };

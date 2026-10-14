@@ -5,7 +5,7 @@
   "totalChapters": 10,
   "totalQuestions": 617,
   "negativeMarking": 0.25,
-  "marksPerQuestion": 1.0,
+  "marksPerQuestion": 1,
   "chapters": [
     {
       "chapterNumber": 1,
@@ -25,7 +25,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "Economists regard decision making as important because:",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -1524,7 +1523,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "Demand for a commodity refers to:",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -5255,7 +5253,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "Which of the following is considered production in Economics?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -7870,7 +7867,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "In the table below what will be equilibrium market price? Price (`) Demand (tonnes per annum) Supply (tonnes per annum) 1 1000 400 2 900 500 3 800 600 4 700 700 5 600 800 6 500 900 7 400 1000 8 300 1100",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -11012,7 +11008,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "The term business cycle refers to",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -11994,7 +11989,6 @@
           "unitNumberInChapter": 1,
           "unitTitle": "Unit 1: National Income Accounting",
           "questionText": "The concept of ‘resident unit’ involved in the definition of GDP denotes",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -12459,7 +12453,6 @@
           "unitNumberInChapter": 2,
           "unitTitle": "Unit 2: The Keynesian Theory of Determination of National Income",
           "questionText": "In the Keynesian model, equilibrium aggregate output is determined by",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -12930,7 +12923,6 @@
           "unitNumberInChapter": 1,
           "unitTitle": "Unit 1: Fiscal Functions: An Overview",
           "questionText": "Redistribution policies are likely to have efficiency costs because",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -13550,7 +13542,6 @@
           "unitNumberInChapter": 2,
           "unitTitle": "Unit 2: Market Failure",
           "questionText": "‘Market failure’ is a situation which occurs when",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -14294,7 +14285,6 @@
           "unitNumberInChapter": 3,
           "unitTitle": "Unit 3: The Process of Budget Preparation and Fiscal Policy",
           "questionText": "The difference between the budget deficit of a government and its debt service payments is ` Crores Revenue receipts 20,000 Recovery of loans 1,500 . 7.66 BUSINESS ECONOMICS Borrowing 15,000 Other Receipts 5,000 Expenditure on revenue account 24,500 Expenditure on capital account 26,000 Interest payments 2,000",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -15038,7 +15028,6 @@
           "unitNumberInChapter": 4,
           "unitTitle": "Unit 4: Public Debt",
           "questionText": "Fiscal policy refers to the",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -15800,7 +15789,6 @@
           "unitNumberInChapter": 1,
           "unitTitle": "Unit 1: The Concept of Money Demand: Important Theories",
           "questionText": "Choose the incorrect statement",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -16265,7 +16253,6 @@
           "unitNumberInChapter": 2,
           "unitTitle": "Unit 2: The Concept of Money Supply",
           "questionText": "Reserve money is also known as",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -16854,7 +16841,6 @@
           "unitNumberInChapter": 3,
           "unitTitle": "Unit 3: Monetary Policy",
           "questionText": "Which of the following is the function of monetary policy?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -17357,7 +17343,6 @@
           "unitNumberInChapter": 1,
           "unitTitle": "Unit 1: Theories of International Trade",
           "questionText": "Which of the following does not represent a difference between internal trade and international trade?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -17667,7 +17652,6 @@
           "unitNumberInChapter": 2,
           "unitTitle": "Unit 2: The Instruments of Trade Policy",
           "questionText": "A specific tariff is",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -18039,7 +18023,6 @@
           "unitNumberInChapter": 3,
           "unitTitle": "Unit 3: Trade Negotiations",
           "questionText": "Which of the following culminated in the establishment of the World Trade Organization?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -18380,7 +18363,6 @@
           "unitNumberInChapter": 4,
           "unitTitle": "Unit 4: Exchange Rate and Its Economic Effects",
           "questionText": "Based on the supply and demand model of determination of exchange rate, which of the following ought to cause the domestic currency of Country X to appreciate against dollar?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -18690,7 +18672,6 @@
           "unitNumberInChapter": 5,
           "unitTitle": "Unit 5: International Capital Movements",
           "questionText": "Which of the following statements is incorrect?",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",
@@ -19011,7 +18992,6 @@
           "unitNumberInChapter": null,
           "unitTitle": null,
           "questionText": "The Indian industry stagnated under the colonial rule because",
-          "context": "TEST YOUR KNOWLEDGE",
           "options": [
             {
               "key": "a",

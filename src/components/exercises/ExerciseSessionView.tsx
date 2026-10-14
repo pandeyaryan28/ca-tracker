@@ -269,13 +269,13 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
     <div className="flex flex-col min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
       {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-        <div>
-          <div className="flex flex-wrap items-center gap-2 mb-1">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
               Chapter {chapterNumber}
             </span>
             {displayUnitTitle && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800 truncate max-w-xs">
                 {displayUnitTitle}
               </span>
             )}
@@ -290,21 +290,21 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               {mode === 'exam' ? 'Exam Mode (-0.25 mark)' : 'Practice Mode'}
             </span>
           </div>
-          <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 truncate">
             {chapterTitle}
           </h2>
         </div>
 
         {/* Live Timer & Action Buttons */}
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0">
           {/* Timer Container */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80">
-            <Clock className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+            <Clock className="w-4 h-4 text-zinc-500 dark:text-zinc-400 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase">
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase leading-tight">
                 {mode === 'exam' ? 'Time Left' : 'Elapsed Time'}
               </span>
-              <span className="font-mono text-sm font-bold text-zinc-900 dark:text-zinc-100">
+              <span className="font-mono text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
                 {formatTime(mode === 'exam' ? timeRemainingSeconds : timeElapsedSeconds)}
               </span>
             </div>
@@ -324,7 +324,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setShowPaletteModal(true)}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 lg:hidden"
             title="Open Question Palette"
           >
             <Grid className="w-4 h-4" />
@@ -339,7 +339,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="primary"
             size="sm"
             onClick={() => setShowSubmitModal(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold"
+            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold shadow-xs"
           >
             Submit
           </Button>
@@ -357,10 +357,10 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Left Column: Question Card & Controls */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+      {/* Main Content Area: 12-column Grid for balanced breathing room */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Question Card & Controls (8 cols) */}
+        <div className="lg:col-span-8 flex flex-col gap-4">
           <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
             {/* Session Progress Bar */}
             <div className="mb-4">
@@ -410,7 +410,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             </div>
 
             {/* Context Box (Tables, case figures, or problem prompt) */}
-            {currentQ.context && (
+            {currentQ.context && currentQ.context.trim() && !currentQ.context.includes('TEST YOUR KNOWLEDGE') && !currentQ.context.includes('Multiple Choice') && (
               <div className="mb-5 p-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
                 {currentQ.context}
               </div>
@@ -597,8 +597,8 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Desktop Persistent Question Palette */}
-        <div className="hidden lg:block lg:col-span-1">
+        {/* Right Column: Desktop Persistent Question Palette (4 cols) */}
+        <div className="hidden lg:block lg:col-span-4">
           <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs sticky top-24">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
@@ -617,18 +617,31 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               onSelectQuestion={(idx) => setCurrentIndex(idx)}
             />
 
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-2 text-xs">
-              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                <span>Answered:</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">{answeredCount}</span>
+            {/* 3-Column Metric Strip */}
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+                <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                  Answered
+                </span>
+                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-200 font-mono mt-0.5">
+                  {answeredCount}
+                </span>
               </div>
-              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                <span>Marked for Review:</span>
-                <span className="font-semibold text-amber-600 dark:text-amber-400">{markedCount}</span>
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
+                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+                  Marked
+                </span>
+                <span className="text-sm font-bold text-amber-800 dark:text-amber-200 font-mono mt-0.5">
+                  {markedCount}
+                </span>
               </div>
-              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                <span>Unanswered:</span>
-                <span className="font-semibold text-zinc-600 dark:text-zinc-400">{unansweredCount}</span>
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/60">
+                <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  Pending
+                </span>
+                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 font-mono mt-0.5">
+                  {unansweredCount}
+                </span>
               </div>
             </div>
           </Card>
@@ -664,11 +677,39 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               }}
             />
 
+            {/* 3-Column Metric Strip for Mobile */}
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+                <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                  Answered
+                </span>
+                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-200 font-mono mt-0.5">
+                  {answeredCount}
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60">
+                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+                  Marked
+                </span>
+                <span className="text-sm font-bold text-amber-800 dark:text-amber-200 font-mono mt-0.5">
+                  {markedCount}
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center py-2 px-1 rounded-md bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/60">
+                <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  Pending
+                </span>
+                <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 font-mono mt-0.5">
+                  {unansweredCount}
+                </span>
+              </div>
+            </div>
+
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowPaletteModal(false)}
-              className="w-full mt-2"
+              className="w-full mt-1"
             >
               Close
             </Button>
