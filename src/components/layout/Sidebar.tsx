@@ -6,6 +6,7 @@ import {
   Film,
   FileSpreadsheet,
   RotateCw,
+  HelpCircle,
   FolderSync,
   Settings,
   ChevronLeft,
@@ -38,6 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'lectures' as NavigationTab, label: 'Lectures', icon: Film },
     { id: 'tests' as NavigationTab, label: 'Test Series', icon: FileSpreadsheet },
     { id: 'revisions' as NavigationTab, label: 'Revisions', icon: RotateCw },
+    { id: 'exercises' as NavigationTab, label: 'Exercises', icon: HelpCircle },
     { id: 'ingestion' as NavigationTab, label: 'Ingestion Hub', icon: FolderSync },
     { id: 'settings' as NavigationTab, label: 'Settings', icon: Settings },
   ];

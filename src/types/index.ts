@@ -261,6 +261,7 @@ export type NavigationTab =
   | 'lectures'
   | 'tests'
   | 'revisions'
+  | 'exercises'
   | 'ingestion'
   | 'settings';
 
@@ -454,4 +455,88 @@ export interface DataContextValue {
   importData: (payload: ImportExportPayload, mode: ImportConflictResolution) => void;
   exportData: (format?: 'json' | 'csv') => string;
 }
+
+// ============================================================================
+// 10. DIGITAL EXERCISE DOMAIN TYPES (PAPER 4: BUSINESS ECONOMICS)
+// ============================================================================
+
+export type ExerciseOptionKey = 'a' | 'b' | 'c' | 'd';
+
+export interface ExerciseOption {
+  key: ExerciseOptionKey;
+  text: string;
+}
+
+export interface ExerciseQuestion {
+  id: string; // e.g. "beco-ch01-q001" or "beco-ch06-u1-q001"
+  chapterNumber: number;
+  chapterId: string; // e.g. "eco-ch-01"
+  chapterTitle: string;
+  questionNumber: number; // 1 to N
+  unitNumberInChapter?: number | null;
+  unitTitle?: string | null;
+  questionText: string;
+  context?: string | null; // Tables, case prompts, or data figures
+  options: ExerciseOption[];
+  correctOption: ExerciseOptionKey;
+  explanation: string;
+}
+
+export interface ChapterExerciseUnit {
+  unitNumber: number;
+  unitTitle: string;
+  totalQuestions: number;
+  questionIds: string[];
+}
+
+export interface ChapterExercise {
+  chapterNumber: number;
+  chapterId: string;
+  title: string;
+  description: string;
+  totalQuestions: number;
+  hasUnits: boolean;
+  units: ChapterExerciseUnit[];
+  questions: ExerciseQuestion[];
+}
+
+export interface EconomicsExercisesData {
+  subjectId: string;
+  subjectName: string;
+  paperNumber: number;
+  totalChapters: number;
+  totalQuestions: number;
+  negativeMarking: number;
+  marksPerQuestion: number;
+  chapters: ChapterExercise[];
+}
+
+export type ExerciseMode = 'practice' | 'exam';
+
+export interface ExerciseAttempt {
+  id: string;
+  chapterNumber: number;
+  chapterId: string;
+  chapterTitle: string;
+  unitNumber?: number | null;
+  unitTitle?: string | null;
+  mode: ExerciseMode;
+  startedAt: string; // ISO string
+  completedAt: string; // ISO string
+  timeSpentSeconds: number;
+  selectedAnswers: Record<string, ExerciseOptionKey>; // questionId -> chosen key
+  markedForReview: Record<string, boolean>; // questionId -> boolean
+  score: number; // Raw correct count
+  scaledScore: number; // +1.00 for correct, -0.25 for incorrect, 0 for skipped
+  totalQuestions: number;
+  attemptedCount: number;
+  correctCount: number;
+  incorrectCount: number;
+  unattemptedCount: number;
+  accuracyPercentage: number;
+  isCustomSubset?: boolean;
+}
+
+export type ExerciseReviewFilter = 'all' | 'incorrect' | 'marked' | 'correct' | 'skipped';
+
 

@@ -19,6 +19,7 @@ const TAB_TITLES: Record<NavigationTab, string> = {
   lectures: 'Video Lectures & Watch History',
   tests: 'Test Series & Marks',
   revisions: 'Spaced Revisions',
+  exercises: 'Digital Exercises',
   ingestion: 'Ingestion & Export Hub',
   settings: 'Settings & Profile',
 };

@@ -134,6 +134,7 @@ export const NAV_ITEMS: NavigationItem[] = [
   { id: 'lectures', label: 'Lectures', icon: 'Film' },
   { id: 'tests', label: 'Test Series', icon: 'FileSpreadsheet' },
   { id: 'revisions', label: 'Revisions', icon: 'RotateCw' },
+  { id: 'exercises', label: 'Exercises', icon: 'HelpCircle' },
   { id: 'ingestion', label: 'Ingestion Hub', icon: 'FolderSync' },
   { id: 'settings', label: 'Settings', icon: 'Settings' },
 ];
@@ -147,4 +148,6 @@ export const STORAGE_KEYS = {
   TARGET_EXAM_DATE: 'ca_tracker_target_exam_date',
   THEME: 'ca_theme',
   STREAK: 'ca_tracker_streak',
+  EXERCISE_ATTEMPTS: 'ca_tracker_exercise_attempts',
+  EXERCISE_ACTIVE_SESSION: 'ca_tracker_active_exercise_session',
 };

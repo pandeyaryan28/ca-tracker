@@ -6,6 +6,7 @@ import {
   Film,
   FileSpreadsheet,
   RotateCw,
+  HelpCircle,
   FolderSync,
   Settings,
   X,
@@ -66,6 +67,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
     { id: 'lectures' as NavigationTab, label: 'Video Lectures', icon: Film },
     { id: 'tests' as NavigationTab, label: 'Test Series & Marks', icon: FileSpreadsheet },
     { id: 'revisions' as NavigationTab, label: 'Spaced Revisions', icon: RotateCw },
+    { id: 'exercises' as NavigationTab, label: 'Digital Exercises', icon: HelpCircle },
     { id: 'ingestion' as NavigationTab, label: 'Ingestion & Backup Hub', icon: FolderSync },
     { id: 'settings' as NavigationTab, label: 'Preferences & Settings', icon: Settings },
   ];

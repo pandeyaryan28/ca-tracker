@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { DataProvider } from '@/context/DataContext';
@@ -13,8 +13,28 @@ import { RevisionsView } from '@/components/revision/RevisionsView';
 import { IngestionView } from '@/components/ingestion/IngestionView';
 import { SettingsView } from '@/components/settings/SettingsView';
 
+const ExercisesView = lazy(() =>
+  import('@/components/exercises/ExercisesView').then((m) => ({ default: m.ExercisesView }))
+);
+
 export const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
+  const [exerciseTarget, setExerciseTarget] = useState<
+    { chapterNumber: number; unitNumber?: number; timestamp: number } | undefined
+  >(undefined);
+
+  const handleNavigateToExercise = (chapterNum?: number, unitNum?: number) => {
+    if (chapterNum != null) {
+      setExerciseTarget({
+        chapterNumber: chapterNum,
+        unitNumber: unitNum,
+        timestamp: Date.now(),
+      });
+    } else {
+      setExerciseTarget(undefined);
+    }
+    setActiveTab('exercises');
+  };
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -23,13 +43,30 @@ export const AppContent: React.FC = () => {
       case 'schedule':
         return <ScheduleView />;
       case 'checklist':
-        return <ChecklistView />;
+        return <ChecklistView onNavigateToExercise={handleNavigateToExercise} />;
       case 'lectures':
         return <LecturesView />;
       case 'tests':
         return <TestsView />;
       case 'revisions':
         return <RevisionsView />;
+      case 'exercises':
+        return (
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center min-h-[50vh] text-zinc-500">
+                <span className="text-sm font-medium">Loading exercises...</span>
+              </div>
+            }
+          >
+            <ExercisesView
+              initialChapterNumber={exerciseTarget?.chapterNumber}
+              initialUnitNumber={exerciseTarget?.unitNumber}
+              navTimestamp={exerciseTarget?.timestamp}
+              onClearNavigationTarget={() => setExerciseTarget(undefined)}
+            />
+          </Suspense>
+        );
       case 'ingestion':
         return <IngestionView />;
       case 'settings':

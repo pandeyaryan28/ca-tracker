@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Play,
   Check,
+  HelpCircle,
 } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { Card } from '@/components/common/Card';
@@ -23,7 +24,11 @@ import { cn, formatMinutes, getTodayDateString, formatCompactDate } from '@/lib/
 
 export type DateFilter = 'all' | 'today' | 'overdue' | 'scheduled' | 'unscheduled';
 
-export const ChecklistView: React.FC = () => {
+export interface ChecklistViewProps {
+  onNavigateToExercise?: (chapterNum?: number, unitNum?: number) => void;
+}
+
+export const ChecklistView: React.FC<ChecklistViewProps> = ({ onNavigateToExercise }) => {
   const { subjects, subjectGroups, updateTopicStatus, batchUpdateTopicStatus, updateTopic, addTopic } = useData();
   const [selectedSubject, setSelectedSubject] = useState<SubjectId | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TopicStatus | 'all'>('all');
@@ -571,6 +576,20 @@ export const ChecklistView: React.FC = () => {
                                   <ExternalLink className="w-3 h-3 opacity-70" />
                                 </a>
                               )}
+                              {chapter.subjectId === 'paper4' && onNavigateToExercise && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onNavigateToExercise(chapter.chapterNumber);
+                                  }}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 transition-colors border border-emerald-200 dark:border-emerald-800/80 shrink-0 touch-target min-h-[36px] cursor-pointer"
+                                  title={`Practice Digital Exercise for Chapter ${chapter.chapterNumber}`}
+                                >
+                                  <HelpCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                  <span className="hidden xs:inline">Exercise</span>
+                                </button>
+                              )}
                             </div>
                             <div className="flex items-center gap-1.5 text-xs font-medium tabular-nums ml-auto sm:ml-0">
                               <span
@@ -719,6 +738,23 @@ export const ChecklistView: React.FC = () => {
                                           <ExternalLink className="w-3 h-3 opacity-70" />
                                         </a>
                                       )}
+
+                                      {/* Direct Unit-Level Exercise Practice (for Paper 4 Units) */}
+                                      {chapter.subjectId === 'paper4' && onNavigateToExercise && (() => {
+                                        const unitMatch = topic.title.match(/Unit\s*(\d+)/i);
+                                        const topicUnitNumber = (topic as any).unitNumber ?? (unitMatch ? Number(unitMatch[1]) : undefined);
+                                        return (
+                                          <button
+                                            type="button"
+                                            onClick={() => onNavigateToExercise(chapter.chapterNumber, topicUnitNumber)}
+                                            className="p-1.5 rounded-md text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 transition-colors inline-flex items-center gap-1 touch-target min-h-[36px] cursor-pointer"
+                                            title={topicUnitNumber ? `Practice Digital Exercise for Unit ${topicUnitNumber}` : `Practice Digital Exercise for ${topic.title}`}
+                                          >
+                                            <HelpCircle className="w-3.5 h-3.5" />
+                                            <span className="text-[11px] font-semibold">Exercise</span>
+                                          </button>
+                                        );
+                                      })()}
 
                                       {/* Date editor button */}
                                       <button
