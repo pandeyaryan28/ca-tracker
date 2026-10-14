@@ -60,7 +60,7 @@ describe('Tier 1 - Feature 17: Firebase Hosting SPA Rewrites & Security Headers'
     const rulesContent = fs.readFileSync(rulesPath, 'utf8');
     expect(rulesContent).toContain("rules_version = '2'");
     expect(rulesContent).toContain('users/{userId}');
-    expect(rulesContent).toContain('allow read, write: if true;');
+    expect(rulesContent).toContain('allow read, write: if request.auth != null && request.auth.uid == userId;');
   });
 });
 

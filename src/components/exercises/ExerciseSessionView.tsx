@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Clock,
   Bookmark,
@@ -11,6 +11,8 @@ import {
   Grid,
   X,
   BookOpen,
+  Keyboard,
+  Check,
 } from 'lucide-react';
 import {
   ExerciseQuestion,
@@ -56,8 +58,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showPracticeAnswer, setShowPracticeAnswer] = useState<Record<string, boolean>>({});
 
-  // Timer states
-  // In exam mode: 60 seconds per question allocated
+  // Timer states (60 seconds per question allocated in exam mode)
   const initialExamSeconds = questions.length * 60;
   const [timeRemainingSeconds, setTimeRemainingSeconds] = useState(initialExamSeconds);
   const [timeElapsedSeconds, setTimeElapsedSeconds] = useState(0);
@@ -65,84 +66,62 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
   const startTimeRef = useRef<string>(new Date().toISOString());
 
-  // Timer tick effect
-  useEffect(() => {
-    if (isTimerPaused) return;
-
-    const timer = setInterval(() => {
-      setTimeElapsedSeconds((prev) => prev + 1);
-
-      if (mode === 'exam') {
-        setTimeRemainingSeconds((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            // Auto submit when exam time runs out
-            handleFinalSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isTimerPaused, mode]);
-
   const currentQ = questions[currentIndex];
   const totalQuestions = questions.length;
-
   const answeredCount = Object.keys(selectedAnswers).length;
   const markedCount = Object.values(markedForReview).filter(Boolean).length;
   const unansweredCount = totalQuestions - answeredCount;
 
-  // Handlers
-  const handleSelectOption = (key: ExerciseOptionKey) => {
+  const handleSelectOption = useCallback((key: ExerciseOptionKey) => {
+    if (!currentQ) return;
     setSelectedAnswers((prev) => ({
       ...prev,
       [currentQ.id]: key,
     }));
-  };
+  }, [currentQ]);
 
-  const handleClearOption = () => {
+  const handleClearOption = useCallback(() => {
+    if (!currentQ) return;
     setSelectedAnswers((prev) => {
       const next = { ...prev };
       delete next[currentQ.id];
       return next;
     });
-    // Reset practice mode check
     setShowPracticeAnswer((prev) => ({
       ...prev,
       [currentQ.id]: false,
     }));
-  };
+  }, [currentQ]);
 
-  const handleToggleMarkForReview = () => {
+  const handleToggleMarkForReview = useCallback(() => {
+    if (!currentQ) return;
     setMarkedForReview((prev) => ({
       ...prev,
       [currentQ.id]: !prev[currentQ.id],
     }));
-  };
+  }, [currentQ]);
 
-  const handleTogglePracticeAnswer = () => {
+  const handleTogglePracticeAnswer = useCallback(() => {
+    if (!currentQ) return;
     setShowPracticeAnswer((prev) => ({
       ...prev,
       [currentQ.id]: !prev[currentQ.id],
     }));
-  };
+  }, [currentQ]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
     }
-  };
+  }, [currentIndex]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex((prev) => prev + 1);
     }
-  };
+  }, [currentIndex, totalQuestions]);
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = useCallback(() => {
     const completedAt = new Date().toISOString();
     const timeSpent = timeElapsedSeconds;
 
@@ -164,7 +143,115 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
     saveExerciseAttempt(attempt);
     onComplete(attempt);
-  };
+  }, [
+    chapterNumber,
+    chapterId,
+    chapterTitle,
+    unitNumber,
+    unitTitle,
+    mode,
+    questions,
+    selectedAnswers,
+    markedForReview,
+    timeElapsedSeconds,
+    isCustomSubset,
+    onComplete,
+  ]);
+
+  // Timer tick effect
+  useEffect(() => {
+    if (isTimerPaused) return;
+
+    const timer = setInterval(() => {
+      setTimeElapsedSeconds((prev) => prev + 1);
+
+      if (mode === 'exam') {
+        setTimeRemainingSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleFinalSubmit();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isTimerPaused, mode, handleFinalSubmit]);
+
+  // Keyboard Shortcuts Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when modals are open or user is in form inputs
+      if (
+        showSubmitModal ||
+        showPaletteModal ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)
+      ) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+
+      // Number keys or letter keys for options
+      if (key === '1' || key === 'a') {
+        e.preventDefault();
+        handleSelectOption('a');
+      } else if (key === '2' || key === 'b') {
+        e.preventDefault();
+        handleSelectOption('b');
+      } else if (key === '3') {
+        e.preventDefault();
+        handleSelectOption('c');
+      } else if (key === '4' || key === 'd') {
+        e.preventDefault();
+        handleSelectOption('d');
+      } else if (key === 'backspace' || key === 'delete') {
+        e.preventDefault();
+        handleClearOption();
+      } else if (key === 'c') {
+        e.preventDefault();
+        // If an option is currently selected, 'c' clears it (ICAI Clear Response shortcut).
+        // If nothing is selected, 'c' selects Option C.
+        if (selectedAnswers[currentQ?.id]) {
+          handleClearOption();
+        } else {
+          handleSelectOption('c');
+        }
+      } else if (key === 'arrowright' || key === 'enter') {
+        e.preventDefault();
+        if (currentIndex < totalQuestions - 1) {
+          handleNext();
+        } else {
+          setShowSubmitModal(true);
+        }
+      } else if (key === 'arrowleft') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          handlePrev();
+        }
+      } else if (key === 'm' || key === 'r') {
+        e.preventDefault();
+        handleToggleMarkForReview();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    showSubmitModal,
+    showPaletteModal,
+    currentIndex,
+    totalQuestions,
+    currentQ,
+    selectedAnswers,
+    handleSelectOption,
+    handleNext,
+    handlePrev,
+    handleToggleMarkForReview,
+    handleClearOption,
+  ]);
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -175,30 +262,32 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   const isCurrentMarked = Boolean(markedForReview[currentQ?.id]);
   const currentSelectedOption = selectedAnswers[currentQ?.id];
   const isPracticeAnswerVisible = Boolean(showPracticeAnswer[currentQ?.id]);
+  const progressPercentage = Math.round(((currentIndex + 1) / totalQuestions) * 100);
+  const displayUnitTitle = unitTitle || currentQ?.unitTitle;
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
       {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
               Chapter {chapterNumber}
             </span>
-            {unitTitle && (
-              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                • {unitTitle}
+            {displayUnitTitle && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                {displayUnitTitle}
               </span>
             )}
             <span
               className={cn(
-                'text-xs font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider',
+                'text-xs font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider border',
                 mode === 'exam'
-                  ? 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/60'
-                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60'
+                  ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/60'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60'
               )}
             >
-              {mode === 'exam' ? 'Exam Mode (-0.25)' : 'Practice Mode'}
+              {mode === 'exam' ? 'Exam Mode (-0.25 mark)' : 'Practice Mode'}
             </span>
           </div>
           <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
@@ -206,14 +295,14 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
           </h2>
         </div>
 
-        {/* Live Timer & Header Action Buttons */}
+        {/* Live Timer & Action Buttons */}
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           {/* Timer Container */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80">
             <Clock className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             <div className="flex flex-col">
               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase">
-                {mode === 'exam' ? 'Time Remaining' : 'Elapsed Time'}
+                {mode === 'exam' ? 'Time Left' : 'Elapsed Time'}
               </span>
               <span className="font-mono text-sm font-bold text-zinc-900 dark:text-zinc-100">
                 {formatTime(mode === 'exam' ? timeRemainingSeconds : timeElapsedSeconds)}
@@ -222,7 +311,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             <button
               type="button"
               onClick={() => setIsTimerPaused(!isTimerPaused)}
-              className="p-1 rounded-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors ml-1"
+              className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors ml-1 cursor-pointer"
               title={isTimerPaused ? 'Resume Timer' : 'Pause Timer'}
               aria-label={isTimerPaused ? 'Resume Timer' : 'Pause Timer'}
             >
@@ -250,7 +339,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="primary"
             size="sm"
             onClick={() => setShowSubmitModal(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold"
           >
             Submit
           </Button>
@@ -268,20 +357,38 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area: Question + Palette side-by-side on desktop */}
+      {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Left Column: Question Card & Controls */}
         <div className="lg:col-span-3 flex flex-col gap-4">
           <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+            {/* Session Progress Bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium">
+                <span>
+                  Progress: {currentIndex + 1} of {totalQuestions}
+                </span>
+                <span>{progressPercentage}% Complete</span>
+              </div>
+              <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-sm overflow-hidden border border-zinc-200/50 dark:border-zinc-700/50">
+                <div
+                  className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+            </div>
+
             {/* Question Header & Mark for Review Button */}
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
                   Question {currentIndex + 1}
                 </span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  of {totalQuestions}
-                </span>
+                {currentQ.unitTitle && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline">
+                    • {currentQ.unitTitle}
+                  </span>
+                )}
               </div>
 
               {/* Mark for Review Toggle Button */}
@@ -294,10 +401,11 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                     ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-700/70'
                     : 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
                 )}
-                title={isCurrentMarked ? 'Unmark Question' : 'Mark Question for Review'}
+                title={isCurrentMarked ? 'Unmark Question [Shortcut: M]' : 'Mark Question for Review [Shortcut: M]'}
               >
                 <Bookmark className={cn('w-3.5 h-3.5', isCurrentMarked && 'fill-current')} />
                 <span>{isCurrentMarked ? 'Marked for Review' : 'Mark for Review'}</span>
+                <span className="text-[10px] opacity-60 ml-0.5">[M]</span>
               </button>
             </div>
 
@@ -313,10 +421,12 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               {currentQ.questionText}
             </div>
 
-            {/* Options List */}
+            {/* Options List with Enhanced Interactive Touch Targets */}
             <div className="flex flex-col gap-3">
-              {currentQ.options.map((option) => {
+              {currentQ.options.map((option, idx) => {
                 const isSelected = currentSelectedOption === option.key;
+                const optionShortcuts = ['1', '2', '3', '4'];
+                const shortcutKey = optionShortcuts[idx] || option.key.toUpperCase();
 
                 return (
                   <button
@@ -324,23 +434,39 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                     type="button"
                     onClick={() => handleSelectOption(option.key)}
                     className={cn(
-                      'flex items-start gap-3.5 p-4 rounded-md border text-left transition-all duration-150 cursor-pointer text-sm leading-snug',
+                      'group flex items-center justify-between gap-3.5 p-4 min-h-[48px] rounded-md border text-left transition-all duration-150 cursor-pointer text-sm leading-snug',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-zinc-100 focus-visible:ring-offset-2',
                       isSelected
-                        ? 'border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-800/90 text-zinc-950 dark:text-white font-medium ring-1 ring-zinc-900 dark:ring-zinc-100'
-                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40'
+                        ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/95 text-zinc-950 dark:text-white font-medium ring-1 ring-zinc-900 dark:ring-zinc-100 shadow-xs'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40'
                     )}
                   >
-                    <span
-                      className={cn(
-                        'flex items-center justify-center w-6 h-6 rounded-md text-xs font-bold uppercase shrink-0 transition-colors',
-                        isSelected
-                          ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                          : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                    <div className="flex items-start gap-3.5 flex-1">
+                      <span
+                        className={cn(
+                          'flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold uppercase shrink-0 transition-colors',
+                          isSelected
+                            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700'
+                        )}
+                      >
+                        {option.key}
+                      </span>
+                      <span className="flex-1 mt-0.5">{option.text}</span>
+                    </div>
+
+                    {/* Keyboard Shortcut Hint & Selection Checkmark */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isSelected ? (
+                        <span className="p-1 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </span>
+                      ) : (
+                        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 dark:text-zinc-500 px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-850">
+                          [{shortcutKey}]
+                        </span>
                       )}
-                    >
-                      {option.key}
-                    </span>
-                    <span className="flex-1 mt-0.5">{option.text}</span>
+                    </div>
                   </button>
                 );
               })}
@@ -402,6 +528,25 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 )}
               </div>
             )}
+
+            {/* Subtle Keyboard Navigation Legend Bar */}
+            <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 hidden md:flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+              <div className="flex items-center gap-1.5 font-medium">
+                <Keyboard className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Shortcuts:</span>
+              </div>
+              <div className="flex items-center gap-3 font-mono">
+                <span>[1-4] or [A-D] Select</span>
+                <span>•</span>
+                <span>[←/→] Navigate</span>
+                <span>•</span>
+                <span>[M/R] Mark</span>
+                <span>•</span>
+                <span>[C/Backspace] Clear</span>
+                <span>•</span>
+                <span>[Enter] Next / Submit</span>
+              </div>
+            </div>
           </Card>
 
           {/* Bottom Action Navigation Toolbar */}
@@ -434,7 +579,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={handleNext}
-                className="flex items-center gap-1.5"
+                className="flex items-center gap-1.5 font-semibold"
               >
                 <span>Next</span>
                 <ChevronRight className="w-4 h-4" />
@@ -444,7 +589,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={() => setShowSubmitModal(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 text-white flex items-center gap-1.5"
+                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 text-white flex items-center gap-1.5 font-semibold"
               >
                 <span>Finish & Submit</span>
               </Button>
@@ -501,7 +646,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPaletteModal(false)}
-                className="p-1 rounded-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
                 aria-label="Close question palette"
               >
                 <X className="w-4 h-4" />
@@ -540,7 +685,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 Submit Exercise?
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                You are about to finish this session. Please review your attempt summary below:
+                You are about to submit your attempt. Here is your current progress summary:
               </p>
             </div>
 
@@ -572,8 +717,14 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             </div>
 
             {markedCount > 0 && (
-              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-md border border-amber-200 dark:border-amber-800">
-                Notice: You have <strong>{markedCount}</strong> questions marked for review. You can review them in detail on the post-submission verification screen.
+              <p className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-md border border-amber-200 dark:border-amber-800">
+                Notice: You have <strong>{markedCount}</strong> questions marked for review. You can review them in detail on the post-submission verification matrix.
+              </p>
+            )}
+
+            {unansweredCount > 0 && (
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/70 p-2.5 rounded-md border border-zinc-200 dark:border-zinc-700">
+                You have <strong>{unansweredCount}</strong> unattempted questions that will be marked as skipped (0.00 marks).
               </p>
             )}
 
@@ -593,7 +744,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                   setShowSubmitModal(false);
                   handleFinalSubmit();
                 }}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
                 Confirm & Submit
               </Button>

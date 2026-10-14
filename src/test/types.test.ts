@@ -74,7 +74,7 @@ describe('Domain Models & Types Contracts', () => {
 
   it('includes all primary navigation tabs in order', () => {
     const tabIds = NAV_ITEMS.map((item) => item.id);
-    expect(tabIds).toEqual(['dashboard', 'schedule', 'checklist', 'lectures', 'tests', 'revisions', 'ingestion', 'settings']);
+    expect(tabIds).toEqual(['dashboard', 'schedule', 'checklist', 'lectures', 'tests', 'revisions', 'exercises', 'ingestion', 'settings']);
   });
 
   it('calculates percentages correctly within bounds', () => {

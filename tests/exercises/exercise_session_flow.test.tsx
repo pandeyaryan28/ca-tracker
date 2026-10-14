@@ -148,6 +148,10 @@ describe('Exercise Session Flow and UI Interactions', () => {
     const markedFilterTab = screen.getByRole('button', { name: /Filter: Marked for Review/i });
     expect(markedFilterTab).toBeInTheDocument();
 
+    // Verify one-click subset practice buttons exist
+    expect(screen.getByRole('button', { name: /Practice Marked Only \(1\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Practice Incorrect Only \(1\)/i })).toBeInTheDocument();
+
     // Verify explanation and solution appears
     expect(screen.getByText(/Decision making arises because resources are scarce/i)).toBeInTheDocument();
     expect(screen.getByText(/Business economics bridges economic theory with business practice/i)).toBeInTheDocument();
@@ -279,4 +283,69 @@ describe('Exercise Session Flow and UI Interactions', () => {
     // Q1 should now be restored to DOM
     expect(screen.getByText(/Economists regard decision making as important because:/i)).toBeInTheDocument();
   });
+
+  it('supports full keyboard navigation: 1-4/A-D for options, M for review, arrows for navigation, backspace to clear', () => {
+    const handleComplete = vi.fn();
+    const handleExit = vi.fn();
+
+    render(
+      <ExerciseSessionView
+        chapterNumber={1}
+        chapterId="eco-ch-01"
+        chapterTitle="Nature & Scope of Business Economics"
+        mode="practice"
+        questions={sampleQuestions}
+        onComplete={handleComplete}
+        onExit={handleExit}
+      />
+    );
+
+    // Initial question 1
+    expect(screen.getByText(/Economists regard decision making as important because:/i)).toBeInTheDocument();
+
+    // Press '4' key -> selects option D
+    fireEvent.keyDown(window, { key: '4' });
+    // Verify checkmark appears for option D
+    const optionD = screen.getByText(/All the above\./i).closest('button');
+    expect(optionD?.className).toContain('border-zinc-900');
+
+    // Press 'm' key -> toggles marked for review
+    fireEvent.keyDown(window, { key: 'm' });
+    expect(screen.getByRole('button', { name: /Marked for Review/i })).toBeInTheDocument();
+
+    // Press 'backspace' -> clears selection
+    fireEvent.keyDown(window, { key: 'backspace' });
+    expect(optionD?.className).not.toContain('border-zinc-900');
+
+    // Press 'c' with no selection -> selects option C
+    fireEvent.keyDown(window, { key: 'c' });
+    const optionC = screen.getByText(/Resources have alternative uses\./i).closest('button');
+    expect(optionC?.className).toContain('border-zinc-900');
+
+    // Press 'c' with option C selected -> clears selection
+    fireEvent.keyDown(window, { key: 'c' });
+    expect(optionC?.className).not.toContain('border-zinc-900');
+
+    // Press 'b' key -> selects option B
+    fireEvent.keyDown(window, { key: 'b' });
+    const optionB = screen.getByText(/It is crucial to understand allocation of scarce resources\./i).closest('button');
+    expect(optionB?.className).toContain('border-zinc-900');
+
+    // Press 'c' with option B selected -> clears selection
+    fireEvent.keyDown(window, { key: 'c' });
+    expect(optionB?.className).not.toContain('border-zinc-900');
+
+    // Re-select option B
+    fireEvent.keyDown(window, { key: 'b' });
+    expect(optionB?.className).toContain('border-zinc-900');
+
+    // Press ArrowRight -> moves to Question 2
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText(/Business Economics is defined as:/i)).toBeInTheDocument();
+
+    // Press ArrowLeft -> moves back to Question 1
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(screen.getByText(/Economists regard decision making as important because:/i)).toBeInTheDocument();
+  });
 });
+

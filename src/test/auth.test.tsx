@@ -214,12 +214,12 @@ describe('Unified Authentication System (NAYRA & CA Tracker)', () => {
       </AuthProvider>
     );
 
-    const signInButton = screen.getByRole('button', { name: /Sign In/i });
-    expect(signInButton).toBeInTheDocument();
-    expect(signInButton.className).toContain('rounded-md');
-    expect(signInButton.className).not.toContain('rounded-full');
+    const emailSignInButton = screen.getByRole('button', { name: /Email Sign In/i });
+    expect(emailSignInButton).toBeInTheDocument();
+    expect(emailSignInButton.className).toContain('rounded-md');
+    expect(emailSignInButton.className).not.toContain('rounded-full');
 
-    fireEvent.click(signInButton);
+    fireEvent.click(emailSignInButton);
 
     expect(screen.getByText(/Sign In to Unified Account/i)).toBeInTheDocument();
   });
@@ -334,6 +334,6 @@ describe('Unified Authentication System (NAYRA & CA Tracker)', () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Sign in with Google/i })).toBeInTheDocument();
   });
 });

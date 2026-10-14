@@ -8,6 +8,9 @@ import {
   RotateCcw,
   Check,
   FileSpreadsheet,
+  Award,
+  Clock,
+  Target,
 } from 'lucide-react';
 import {
   ExerciseAttempt,
@@ -49,7 +52,6 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
     chapterNumber,
     chapterTitle,
     unitTitle,
-    mode,
     score,
     scaledScore,
     totalQuestions,
@@ -127,7 +129,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
         marksObtained: scaledScore,
         negativeMarksDeducted: Number((incorrectCount * 0.25).toFixed(2)),
         timeTakenMinutes: Math.max(1, Math.round(timeSpentSeconds / 60)),
-        notes: `Digital Exercise (${mode} mode). Raw score: ${score}/${totalQuestions}, Incorrect: ${incorrectCount}, Time: ${formatTime(timeSpentSeconds)}`,
+        notes: `Digital Exercise (${attempt.mode} mode). Raw score: ${score}/${totalQuestions}, Incorrect: ${incorrectCount}, Time: ${formatTime(timeSpentSeconds)}`,
       });
       setRecordedToTestSeries(true);
     } catch (err) {
@@ -154,10 +156,22 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
 
   const passStatus =
     scaledScore >= totalQuestions * 0.7
-      ? { label: 'Distinction (≥70%)', color: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800' }
+      ? {
+          label: 'Distinction (≥70%)',
+          color:
+            'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800',
+        }
       : scaledScore >= totalQuestions * 0.4
-      ? { label: 'Pass Benchmark (≥40%)', color: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800' }
-      : { label: 'Needs Practice (<40%)', color: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800' };
+      ? {
+          label: 'Pass Benchmark (≥40%)',
+          color:
+            'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800',
+        }
+      : {
+          label: 'Needs Practice (<40%)',
+          color:
+            'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800',
+        };
 
   return (
     <div className="flex flex-col max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
@@ -181,16 +195,16 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
       <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-zinc-100 dark:border-zinc-800">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                 Chapter {chapterNumber}
               </span>
               {unitTitle && (
-                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  • {unitTitle}
+                <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  {unitTitle}
                 </span>
               )}
-              <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-sm border', passStatus.color)}>
+              <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-md border', passStatus.color)}>
                 {passStatus.label}
               </span>
             </div>
@@ -207,7 +221,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
               onClick={handleRecordToTestSeries}
               disabled={recordedToTestSeries}
               className={cn(
-                'flex items-center gap-1.5 w-full md:w-auto justify-center',
+                'flex items-center gap-1.5 w-full md:w-auto justify-center font-semibold',
                 !recordedToTestSeries && 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
               )}
             >
@@ -226,11 +240,12 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           </div>
         </div>
 
-        {/* Metric Badges Grid */}
+        {/* Metric Badges Grid: Prominent KPI Score Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-6">
           <div className="p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-              ICAI Scaled Score
+            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Award className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Scaled Score</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-1">
               {scaledScore} <span className="text-xs text-zinc-500 dark:text-zinc-400 font-normal">/ {totalQuestions}</span>
@@ -241,8 +256,9 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           </div>
 
           <div className="p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-              Raw Accuracy
+            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Target className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Raw Accuracy</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
               {accuracyPercentage}%
@@ -253,20 +269,22 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           </div>
 
           <div className="p-3.5 rounded-md border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20">
-            <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-              Correct Answers
+            <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Correct</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
               {correctCount}
             </div>
             <div className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">
-              +1.00 each
+              +1.00 mark each
             </div>
           </div>
 
           <div className="p-3.5 rounded-md border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20">
-            <div className="text-[11px] font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-              Incorrect Answers
+            <div className="text-[11px] font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wider flex items-center gap-1">
+              <XCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+              <span>Incorrect</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-rose-700 dark:text-rose-300 mt-1">
               {incorrectCount}
@@ -279,20 +297,21 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           {/* Marked for Review Card */}
           <div className="p-3.5 rounded-md border border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20">
             <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
-              <Bookmark className="w-3 h-3 fill-current" />
+              <Bookmark className="w-3.5 h-3.5 fill-current" />
               <span>Marked for Review</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-amber-700 dark:text-amber-300 mt-1">
               {markedQuestionsCount}
             </div>
             <div className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mt-0.5">
-              Flagged for review
+              Flagged questions
             </div>
           </div>
 
           <div className="p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-              Time Taken
+            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Time Taken</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-1">
               {formatTime(timeSpentSeconds)}
@@ -320,10 +339,10 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
               variant="outline"
               size="sm"
               onClick={handlePracticeMarkedOnly}
-              className="flex items-center gap-1.5 border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+              className="flex items-center gap-1.5 border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-medium"
             >
               <Bookmark className="w-3.5 h-3.5 fill-current" />
-              <span>Practice Marked Questions ({markedQuestionsCount})</span>
+              <span>Practice Marked Only ({markedQuestionsCount})</span>
             </Button>
           )}
 
@@ -332,7 +351,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
               variant="outline"
               size="sm"
               onClick={handlePracticeIncorrectOnly}
-              className="flex items-center gap-1.5 border-rose-300 text-rose-800 dark:border-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              className="flex items-center gap-1.5 border-rose-300 text-rose-800 dark:border-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-medium"
             >
               <XCircle className="w-3.5 h-3.5" />
               <span>Practice Incorrect Only ({incorrectCount})</span>
@@ -371,7 +390,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
             )}
           >
             <span>Incorrect</span>
-            <span className="px-1.5 py-0.2 rounded-sm bg-rose-100 dark:bg-rose-900/60 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/60 text-[10px]">
               {incorrectCount}
             </span>
           </button>
@@ -390,7 +409,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           >
             <Bookmark className="w-3 h-3 fill-current" />
             <span>Marked for Review</span>
-            <span className="px-1.5 py-0.2 rounded-sm bg-amber-100 dark:bg-amber-900/60 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-[10px]">
               {markedQuestionsCount}
             </span>
           </button>
@@ -407,7 +426,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
             )}
           >
             <span>Correct</span>
-            <span className="px-1.5 py-0.2 rounded-sm bg-emerald-100 dark:bg-emerald-900/60 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-[10px]">
               {correctCount}
             </span>
           </button>
@@ -424,7 +443,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
             )}
           >
             <span>Skipped</span>
-            <span className="px-1.5 py-0.2 rounded-sm bg-zinc-100 dark:bg-zinc-800 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px]">
               {unattemptedCount}
             </span>
           </button>
@@ -500,8 +519,9 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   id={`review-question-${originalIndex}`}
                   className={cn(
                     'p-6 border bg-white dark:bg-zinc-900 transition-all shadow-xs',
-                    isMarked && 'border-l-4 border-l-amber-500 bg-amber-50/25 dark:bg-amber-950/15',
-                    highlightedQuestionId === q.id && 'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900',
+                    isMarked && 'border-l-4 border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/15',
+                    highlightedQuestionId === q.id &&
+                      'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900',
                     isCorrect
                       ? 'border-emerald-200 dark:border-emerald-950/80'
                       : userAnswer
@@ -524,24 +544,24 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                       {/* Correctness Status Tag */}
                       {userAnswer ? (
                         isCorrect ? (
-                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-sm bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Correct (+1.00)</span>
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-sm bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                          <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
                             <XCircle className="w-3.5 h-3.5" />
                             <span>Incorrect (-0.25)</span>
                           </span>
                         )
                       ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
                           Unattempted (0.00)
                         </span>
                       )}
                     </div>
 
-                    {/* VISIBLY MARKED FOR REVIEW INTERACTIVE TOGGLE BUTTON */}
+                    {/* Prominent Marked for Review Interactive Toggle Button */}
                     <button
                       type="button"
                       aria-label={isMarked ? 'Unmark question from review' : 'Mark question for review'}
@@ -577,14 +597,17 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                       const isOptionCorrect = option.key.toLowerCase() === q.correctOption.toLowerCase();
                       const isOptionSelected = userAnswer?.toLowerCase() === option.key.toLowerCase();
 
-                      let optionStyle = 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300';
+                      let optionStyle =
+                        'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300';
                       let keyStyle = 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400';
 
                       if (isOptionCorrect) {
-                        optionStyle = 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500';
+                        optionStyle =
+                          'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500';
                         keyStyle = 'bg-emerald-600 text-white font-bold';
                       } else if (isOptionSelected && !isOptionCorrect) {
-                        optionStyle = 'border-rose-500 bg-rose-50/80 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-1 ring-rose-500';
+                        optionStyle =
+                          'border-rose-500 bg-rose-50/80 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-1 ring-rose-500';
                         keyStyle = 'bg-rose-600 text-white font-bold';
                       }
 
@@ -656,18 +679,18 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                     {isMarked && (
                       <div className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-medium">
                         <Bookmark className="w-3 h-3 fill-current" />
-                        <span>You flagged this question for review</span>
+                        <span>Flagged for review</span>
                       </div>
                     )}
                   </div>
 
-                  {/* EXPLANATION & SOLUTION BOX */}
-                  <div className="p-4 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/60">
+                  {/* Stylized Conceptual Explanation Callout Box */}
+                  <div className="p-4 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/80">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-2">
-                      <BookOpen className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                      <span>Explanation & Solution</span>
+                      <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span>ICAI Conceptual Explanation & Reasoning</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-normal">
                       {q.explanation}
                     </p>
                   </div>
