@@ -32,16 +32,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [collapsed, setCollapsed] = useState(false);
   const { metrics, subjectGroups } = useData();
 
-  const navItems = [
-    { id: 'dashboard' as NavigationTab, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'schedule' as NavigationTab, label: 'Schedule', icon: Calendar },
-    { id: 'checklist' as NavigationTab, label: 'Checklist', icon: CheckSquare },
-    { id: 'lectures' as NavigationTab, label: 'Lectures', icon: Film },
-    { id: 'tests' as NavigationTab, label: 'Test Series', icon: FileSpreadsheet },
-    { id: 'revisions' as NavigationTab, label: 'Revisions', icon: RotateCw },
-    { id: 'exercises' as NavigationTab, label: 'Exercises', icon: HelpCircle },
-    { id: 'ingestion' as NavigationTab, label: 'Ingestion Hub', icon: FolderSync },
-    { id: 'settings' as NavigationTab, label: 'Settings', icon: Settings },
+  const navSections = [
+    {
+      title: 'Overview',
+      items: [
+        { id: 'dashboard' as NavigationTab, label: 'Dashboard', icon: LayoutDashboard },
+        { id: 'schedule' as NavigationTab, label: 'Schedule', icon: Calendar },
+        { id: 'checklist' as NavigationTab, label: 'Checklist', icon: CheckSquare },
+      ],
+    },
+    {
+      title: 'Study & Practice',
+      items: [
+        { id: 'exercises' as NavigationTab, label: 'Exercises', icon: HelpCircle },
+        { id: 'tests' as NavigationTab, label: 'Test Series', icon: FileSpreadsheet },
+        { id: 'lectures' as NavigationTab, label: 'Lectures', icon: Film },
+        { id: 'revisions' as NavigationTab, label: 'Revisions', icon: RotateCw },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
+        { id: 'ingestion' as NavigationTab, label: 'Ingestion Hub', icon: FolderSync },
+        { id: 'settings' as NavigationTab, label: 'Settings', icon: Settings },
+      ],
+    },
   ];
 
   return (
@@ -83,31 +98,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="p-3 space-y-1.5" aria-label="Primary Navigation">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onTabChange(item.id)}
-                className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 relative group min-h-[44px] touch-target',
-                  isActive
-                    ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
-                )}
-                title={collapsed ? item.label : undefined}
-                aria-label={item.id === 'tests' ? 'Tests & Test Series' : item.label}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <Icon className={cn('w-5 h-5 shrink-0 transition-transform group-hover:scale-110', isActive ? 'text-current' : 'text-zinc-500 dark:text-zinc-400')} />
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </button>
-            );
-          })}
+        {/* Navigation Items Grouped by Domain */}
+        <nav className="p-3 space-y-3" aria-label="Primary Navigation">
+          {navSections.map((section) => (
+            <div key={section.title} className="space-y-1">
+              {!collapsed && (
+                <div className="px-3 pt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                  {section.title}
+                </div>
+              )}
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onTabChange(item.id)}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs transition-all duration-150 relative group min-h-[40px] touch-target',
+                      isActive
+                        ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                    )}
+                    title={collapsed ? item.label : undefined}
+                    aria-label={item.id === 'tests' ? 'Tests & Test Series' : item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <Icon className={cn('w-4 h-4 shrink-0 transition-transform group-hover:scale-110', isActive ? 'text-current' : 'text-zinc-500 dark:text-zinc-400')} />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </div>
 
