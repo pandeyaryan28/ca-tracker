@@ -20,18 +20,19 @@ const ExercisesView = lazy(() =>
 export const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
   const [exerciseTarget, setExerciseTarget] = useState<
-    { chapterNumber: number; unitNumber?: number; timestamp: number } | undefined
+    { chapterNumber?: number; unitNumber?: number; subjectId?: string; timestamp: number } | undefined
   >(undefined);
 
-  const handleNavigateToExercise = (chapterNum?: number, unitNum?: number) => {
+  const handleNavigateToExercise = (chapterNum?: number, unitNum?: number, subjectId?: string) => {
     if (chapterNum != null) {
       setExerciseTarget({
         chapterNumber: chapterNum,
         unitNumber: unitNum,
+        subjectId: subjectId,
         timestamp: Date.now(),
       });
     } else {
-      setExerciseTarget(undefined);
+      setExerciseTarget(subjectId ? { subjectId, timestamp: Date.now() } : undefined);
     }
     setActiveTab('exercises');
   };
@@ -39,7 +40,7 @@ export const AppContent: React.FC = () => {
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView onNavigate={setActiveTab} />;
+        return <DashboardView onNavigate={setActiveTab} onNavigateToExercise={handleNavigateToExercise} />;
       case 'schedule':
         return <ScheduleView />;
       case 'checklist':
@@ -60,6 +61,7 @@ export const AppContent: React.FC = () => {
             }
           >
             <ExercisesView
+              initialSubjectId={exerciseTarget?.subjectId}
               initialChapterNumber={exerciseTarget?.chapterNumber}
               initialUnitNumber={exerciseTarget?.unitNumber}
               navTimestamp={exerciseTarget?.timestamp}

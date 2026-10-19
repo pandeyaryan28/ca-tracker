@@ -685,6 +685,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                 const isAlreadyInView = targetQuestion && filteredQuestions.some((q) => q.id === targetQuestion.id);
 
                 const scrollToTarget = () => {
+                  if (typeof document === 'undefined') return;
                   const element = document.getElementById(`review-question-${idx}`);
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });

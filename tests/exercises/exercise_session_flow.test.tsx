@@ -174,7 +174,7 @@ describe('Exercise Session Flow and UI Interactions', () => {
     expect(screen.getByText(/No questions found matching the/i)).toBeInTheDocument();
   });
 
-  it('renders ChapterExerciseHub with multi-unit practice capabilities', () => {
+  it('renders ChapterExerciseHub with multi-unit practice capabilities and subject switching', () => {
     const handleStartSession = vi.fn();
     const handleReviewAttempt = vi.fn();
 
@@ -185,11 +185,19 @@ describe('Exercise Session Flow and UI Interactions', () => {
       />
     );
 
+    // Initial default shows Paper 3 (Quantitative Aptitude) with 18 chapters
+    expect(screen.getAllByText(/Quantitative Aptitude/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Exam Mode/i }).length).toBe(18);
+
+    // Switch to Paper 4 via Apple / SwiftUI Segmented Control pill
+    const paper4Pill = screen.getByRole('button', { name: /Paper 4 • Business Economics/i });
+    fireEvent.click(paper4Pill);
+
     // Check that Chapter 7 (Public Finance) displays multi-unit selector
     expect(screen.getByText(/Public Finance/i)).toBeInTheDocument();
     expect(screen.getByText(/4 Units/i)).toBeInTheDocument();
 
-    // Start session in exam mode
+    // Start session in exam mode for Paper 4
     const examButtons = screen.getAllByRole('button', { name: /Exam Mode/i });
     expect(examButtons.length).toBe(10); // 10 chapters
 

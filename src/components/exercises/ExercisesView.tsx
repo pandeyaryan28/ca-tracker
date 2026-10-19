@@ -12,6 +12,7 @@ import { ExerciseSessionView } from './ExerciseSessionView';
 import { CrossVerificationReview } from './CrossVerificationReview';
 
 interface ExercisesViewProps {
+  initialSubjectId?: string;
   initialChapterNumber?: number;
   initialUnitNumber?: number;
   navTimestamp?: number;
@@ -19,6 +20,7 @@ interface ExercisesViewProps {
 }
 
 export const ExercisesView: React.FC<ExercisesViewProps> = ({
+  initialSubjectId,
   initialChapterNumber,
   initialUnitNumber,
   navTimestamp,
@@ -36,7 +38,8 @@ export const ExercisesView: React.FC<ExercisesViewProps> = ({
   // Handle direct navigation from Checklist or other views
   useEffect(() => {
     if (initialChapterNumber) {
-      const ch = getChapterByNumber(initialChapterNumber);
+      const resolvedSubject = initialSubjectId || (initialChapterNumber > 10 ? 'paper3' : 'paper4');
+      const ch = getChapterByNumber(initialChapterNumber, resolvedSubject);
       if (ch) {
         setSelectedChapter(ch);
         setIsCustomPractice(false);
@@ -57,7 +60,7 @@ export const ExercisesView: React.FC<ExercisesViewProps> = ({
         setCurrentView('session');
       }
     }
-  }, [initialChapterNumber, initialUnitNumber, navTimestamp]);
+  }, [initialSubjectId, initialChapterNumber, initialUnitNumber, navTimestamp]);
 
   const handleStartSession = (
     chapter: ChapterExercise,
@@ -155,6 +158,7 @@ export const ExercisesView: React.FC<ExercisesViewProps> = ({
 
   return (
     <ChapterExerciseHub
+      initialSubjectId={initialSubjectId}
       onStartSession={handleStartSession}
       onReviewAttempt={handleReviewAttempt}
     />

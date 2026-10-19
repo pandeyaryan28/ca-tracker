@@ -54,3 +54,7 @@ dist-ssr/
 
 # Agent run logs
 .agents/
+
+# Python cache
+__pycache__/
+*.pyc

@@ -500,7 +500,7 @@ export interface ChapterExercise {
   questions: ExerciseQuestion[];
 }
 
-export interface EconomicsExercisesData {
+export interface SubjectExercisesData {
   subjectId: string;
   subjectName: string;
   paperNumber: number;
@@ -511,10 +511,13 @@ export interface EconomicsExercisesData {
   chapters: ChapterExercise[];
 }
 
+export type EconomicsExercisesData = SubjectExercisesData;
+
 export type ExerciseMode = 'practice' | 'exam';
 
 export interface ExerciseAttempt {
   id: string;
+  subjectId?: string; // 'paper3' | 'paper4' (defaults to 'paper4' for backward compatibility)
   chapterNumber: number;
   chapterId: string;
   chapterTitle: string;

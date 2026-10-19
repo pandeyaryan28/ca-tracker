@@ -2,13 +2,25 @@ import {
   ExerciseAttempt,
   ExerciseQuestion,
   ExerciseOptionKey,
-  EconomicsExercisesData,
+  SubjectExercisesData,
   ExerciseMode,
 } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
-import rawExercisesData from '@/data/economics_exercises.json';
+import rawEconomicsData from '@/data/economics_exercises.json';
+import rawQuantData from '@/data/quantitative_aptitude_exercises.json';
 
-export const economicsExercises: EconomicsExercisesData = rawExercisesData as unknown as EconomicsExercisesData;
+export const economicsExercises: SubjectExercisesData = rawEconomicsData as unknown as SubjectExercisesData;
+export const quantitativeAptitudeExercises: SubjectExercisesData = rawQuantData as unknown as SubjectExercisesData;
+
+/**
+ * Get exercise dataset by subject ID ('paper3' | 'paper4')
+ */
+export function getSubjectExercises(subjectId: string = 'paper3'): SubjectExercisesData {
+  if (subjectId === 'paper3' || subjectId === 'qa' || subjectId === 'math') {
+    return quantitativeAptitudeExercises;
+  }
+  return economicsExercises;
+}
 
 /**
  * Load all stored exercise attempts from LocalStorage
@@ -40,24 +52,36 @@ export function saveExerciseAttempt(attempt: ExerciseAttempt): void {
 }
 
 /**
- * Get all attempts for a given chapter
+ * Get all attempts for a given chapter and optional subjectId
  */
-export function getChapterAttempts(chapterNumber: number): ExerciseAttempt[] {
+export function getChapterAttempts(chapterNumber: number, subjectId?: string): ExerciseAttempt[] {
   const all = loadExerciseAttempts();
-  return all.filter((a) => a.chapterNumber === chapterNumber);
+  return all.filter((a) => {
+    if (a.chapterNumber !== chapterNumber) return false;
+    if (subjectId) {
+      const attemptSubject = a.subjectId || (a.chapterId.startsWith('qa-') ? 'paper3' : 'paper4');
+      return attemptSubject === subjectId;
+    }
+    return true;
+  });
 }
 
 /**
- * Get the best attempt for a chapter (and optionally unit)
+ * Get the best attempt for a chapter (and optionally unit and subject)
  */
 export function getBestAttempt(
   chapterNumber: number,
-  unitNumber?: number | null
+  unitNumber?: number | null,
+  subjectId?: string
 ): ExerciseAttempt | undefined {
   const attempts = loadExerciseAttempts().filter((a) => {
     if (a.chapterNumber !== chapterNumber) return false;
     // Exclude custom subset practice attempts (e.g. marked-only or incorrect-only retakes)
     if (a.isCustomSubset) return false;
+    if (subjectId) {
+      const attemptSubject = a.subjectId || (a.chapterId.startsWith('qa-') ? 'paper3' : 'paper4');
+      if (attemptSubject !== subjectId) return false;
+    }
     if (unitNumber != null) {
       return a.unitNumber === unitNumber;
     }
@@ -83,6 +107,7 @@ export function getBestAttempt(
  * - Unattempted: 0.00 marks
  */
 export function calculateAttemptMetrics(params: {
+  subjectId?: string;
   chapterNumber: number;
   chapterId: string;
   chapterTitle: string;
@@ -129,15 +154,17 @@ export function calculateAttemptMetrics(params: {
 
   const attemptedCount = correctCount + incorrectCount;
   const totalQuestions = questions.length;
-  // Scaled score with CA Foundation Paper 4 negative marking of 0.25
+  // Scaled score with CA Foundation negative marking of 0.25
   const scaledScore = Math.max(0, correctCount * 1.0 - incorrectCount * 0.25);
   const accuracyPercentage =
     attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
 
   const attemptId = `attempt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+  const resolvedSubjectId = params.subjectId || (chapterId.startsWith('qa-') ? 'paper3' : 'paper4');
 
   return {
     id: attemptId,
+    subjectId: resolvedSubjectId,
     chapterNumber,
     chapterId,
     chapterTitle,
@@ -162,17 +189,18 @@ export function calculateAttemptMetrics(params: {
 }
 
 /**
- * Helper to get a chapter by number
+ * Helper to get a chapter by number and subjectId
  */
-export function getChapterByNumber(chapterNumber: number) {
-  return economicsExercises.chapters.find((c) => c.chapterNumber === chapterNumber);
+export function getChapterByNumber(chapterNumber: number, subjectId: string = 'paper4') {
+  const exercises = getSubjectExercises(subjectId);
+  return exercises.chapters.find((c) => c.chapterNumber === chapterNumber);
 }
 
 /**
- * Helper to get a unit within a chapter
+ * Helper to get a unit within a chapter and subjectId
  */
-export function getUnitByNumber(chapterNumber: number, unitNumber: number) {
-  const ch = getChapterByNumber(chapterNumber);
+export function getUnitByNumber(chapterNumber: number, unitNumber: number, subjectId: string = 'paper4') {
+  const ch = getChapterByNumber(chapterNumber, subjectId);
   if (!ch) return undefined;
   return ch.units.find((u) => u.unitNumber === unitNumber);
 }

@@ -28,9 +28,10 @@ import { formatMinutes } from '@/lib/utils';
 
 interface DashboardViewProps {
   onNavigate?: (tab: NavigationTab) => void;
+  onNavigateToExercise?: (chapterNum?: number, unitNum?: number, subjectId?: string) => void;
 }
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
+export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onNavigateToExercise }) => {
   const {
     metrics,
     actionPlan,
@@ -292,15 +293,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               ICAI minimum passing threshold is 40% per subject & 50% aggregate score
             </p>
           </div>
-          {onNavigate && (
-            <button
-              type="button"
-              onClick={() => onNavigate('checklist')}
-              className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 font-medium"
-            >
-              View Checklist <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {onNavigateToExercise && (
+              <button
+                type="button"
+                onClick={() => onNavigateToExercise(undefined, undefined, 'paper3')}
+                className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium"
+              >
+                <BookOpen className="w-3.5 h-3.5" /> Practice Hub (2,547 Qs)
+              </button>
+            )}
+            {onNavigate && (
+              <button
+                type="button"
+                onClick={() => onNavigate('checklist')}
+                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 font-medium"
+              >
+                View Checklist <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -353,6 +365,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                     <span>{group.chapters.length} Chapters</span>
                     <span>{group.completedEstimatedHours} / {group.totalEstimatedHours}h</span>
                   </div>
+
+                  {(paperId === 'paper3' || paperId === 'paper4') && onNavigateToExercise && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigateToExercise(undefined, undefined, paperId);
+                      }}
+                      className="w-full mt-2 py-1.5 px-2 rounded-xl text-xs font-medium bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition-colors flex items-center justify-center gap-1.5 touch-target"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>{paperId === 'paper3' ? 'Practice 1,930 Qs' : 'Practice 617 Qs'}</span>
+                    </button>
+                  )}
                 </div>
               </Card>
             );
