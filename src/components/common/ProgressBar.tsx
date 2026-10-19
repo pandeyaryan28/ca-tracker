@@ -50,7 +50,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       )}
       <div
         className={cn(
-          'w-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-md overflow-hidden border border-zinc-200/40 dark:border-zinc-700/40',
+          'w-full bg-zinc-200/60 dark:bg-zinc-800/60 rounded-full overflow-hidden p-0.5',
           heightClasses[size]
         )}
         role="progressbar"
@@ -60,7 +60,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       >
         <div
           className={cn(
-            'h-full rounded-sm transition-all duration-500 ease-out',
+            'h-full rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]',
             barColorClass
           )}
           style={{

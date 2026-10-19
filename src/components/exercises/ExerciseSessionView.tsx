@@ -268,29 +268,29 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
       {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-white/80 dark:bg-zinc-900/70 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.45)] backdrop-blur-2xl">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-black/[0.04] text-zinc-700 dark:bg-white/[0.08] dark:text-zinc-300 border border-black/[0.04] dark:border-white/[0.06]">
               Chapter {chapterNumber}
             </span>
             {displayUnitTitle && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800 truncate max-w-xs">
+              <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 truncate max-w-xs">
                 {displayUnitTitle}
               </span>
             )}
             <span
               className={cn(
-                'text-xs font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider border',
+                'text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider border',
                 mode === 'exam'
-                  ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/60'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60'
+                  ? 'bg-rose-500/10 text-rose-700 border-rose-500/20 dark:text-rose-300'
+                  : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300'
               )}
             >
               {mode === 'exam' ? 'Exam Mode (-0.25 mark)' : 'Practice Mode'}
             </span>
           </div>
-          <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 truncate">
+          <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 tracking-tight truncate">
             {chapterTitle}
           </h2>
         </div>
@@ -298,7 +298,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
         {/* Live Timer & Action Buttons */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0">
           {/* Timer Container */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.04]">
             <Clock className="w-4 h-4 text-zinc-500 dark:text-zinc-400 shrink-0" />
             <div className="flex flex-col">
               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase leading-tight">
@@ -311,7 +311,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             <button
               type="button"
               onClick={() => setIsTimerPaused(!isTimerPaused)}
-              className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors ml-1 cursor-pointer"
+              className="p-1 rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors ml-1 cursor-pointer swiftui-press active:scale-[0.9]"
               title={isTimerPaused ? 'Resume Timer' : 'Pause Timer'}
               aria-label={isTimerPaused ? 'Resume Timer' : 'Pause Timer'}
             >
@@ -324,7 +324,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setShowPaletteModal(true)}
-            className="flex items-center gap-1.5 lg:hidden"
+            className="flex items-center gap-1.5 lg:hidden rounded-full min-h-[38px] swiftui-press active:scale-[0.97]"
             title="Open Question Palette"
           >
             <Grid className="w-4 h-4" />
@@ -339,7 +339,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="primary"
             size="sm"
             onClick={() => setShowSubmitModal(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold shadow-sm"
+            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold shadow-sm rounded-full min-h-[38px] swiftui-press active:scale-[0.97]"
           >
             Submit
           </Button>
@@ -349,7 +349,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             variant="ghost"
             size="sm"
             onClick={onExit}
-            className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 rounded-full min-h-[38px]"
             title="Exit exercise without saving"
           >
             Exit
@@ -360,28 +360,28 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
       {/* Main Content Area: 12-column Grid for balanced breathing room */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Question Card & Controls (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col gap-4">
-          <Card className="p-6 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
+        <div className="lg:col-span-8 flex flex-col gap-5">
+          <Card className="p-6 sm:p-7 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] bg-white/80 dark:bg-zinc-900/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.45)] backdrop-blur-2xl">
             {/* Session Progress Bar */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 font-medium">
+            <div className="mb-5">
+              <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-2 font-medium">
                 <span>
                   Progress: {totalQuestions > 0 ? currentIndex + 1 : 0} of {totalQuestions}
                 </span>
                 <span>{progressPercentage}% Complete</span>
               </div>
-              <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-sm overflow-hidden border border-zinc-200/50 dark:border-zinc-700/50">
+              <div className="w-full h-2 bg-black/[0.04] dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300"
+                  className="h-full bg-zinc-900 dark:bg-zinc-100 rounded-full transition-all duration-300"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
             </div>
 
             {/* Question Header & Mark for Review Button */}
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-black/[0.04] dark:border-white/[0.06]">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
                   Question {currentIndex + 1}
                 </span>
                 {currentQ.unitTitle && (
@@ -396,10 +396,10 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 type="button"
                 onClick={handleToggleMarkForReview}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150 cursor-pointer border',
+                  'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer border swiftui-press active:scale-[0.96]',
                   isCurrentMarked
-                    ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-700/70'
-                    : 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
+                    ? 'bg-amber-500/15 text-amber-900 border-amber-500/30 dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-700/70'
+                    : 'bg-black/[0.04] hover:bg-black/[0.07] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-zinc-700 dark:text-zinc-300 border-black/[0.06] dark:border-white/[0.08]'
                 )}
                 title={isCurrentMarked ? 'Unmark Question [Shortcut: M]' : 'Mark Question for Review [Shortcut: M]'}
               >
@@ -411,7 +411,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
             {/* Context Box (Tables, case figures, or problem prompt) */}
             {currentQ.context && currentQ.context.trim() && !/test your knowledge/i.test(currentQ.context) && !/multiple choice/i.test(currentQ.context) && (
-              <div className="mb-5 p-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
+              <div className="mb-5 p-4 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
                 {currentQ.context}
               </div>
             )}
@@ -434,20 +434,20 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                     type="button"
                     onClick={() => handleSelectOption(option.key)}
                     className={cn(
-                      'group flex items-center justify-between gap-3.5 p-4 min-h-[48px] rounded-md border text-left transition-all duration-150 cursor-pointer text-sm leading-snug',
+                      'group flex items-center justify-between gap-3.5 p-4 min-h-[52px] rounded-2xl border text-left transition-all duration-200 cursor-pointer text-sm leading-snug swiftui-press active:scale-[0.98]',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-zinc-100 focus-visible:ring-offset-2',
                       isSelected
                         ? 'border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-800/95 text-zinc-950 dark:text-white font-medium ring-1 ring-zinc-900 dark:ring-zinc-100 shadow-sm'
-                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40'
+                        : 'border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-black/[0.015] dark:hover:bg-white/[0.02]'
                     )}
                   >
                     <div className="flex items-start gap-3.5 flex-1">
                       <span
                         className={cn(
-                          'flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold uppercase shrink-0 transition-colors',
+                          'flex items-center justify-center w-7 h-7 rounded-xl text-xs font-bold uppercase shrink-0 transition-colors',
                           isSelected
                             ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700'
+                            : 'bg-black/[0.05] text-zinc-600 dark:bg-white/[0.08] dark:text-zinc-400 group-hover:bg-black/[0.08] dark:group-hover:bg-white/[0.12]'
                         )}
                       >
                         {option.key}
@@ -458,11 +458,11 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                     {/* Keyboard Shortcut Hint & Selection Checkmark */}
                     <div className="flex items-center gap-2 shrink-0">
                       {isSelected ? (
-                        <span className="p-1 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                        <span className="p-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                         </span>
                       ) : (
-                        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 dark:text-zinc-500 px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800">
+                        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 dark:text-zinc-500 px-2 py-0.5 rounded-full border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.04]">
                           [{shortcutKey}]
                         </span>
                       )}
@@ -550,13 +550,13 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
           </Card>
 
           {/* Bottom Action Navigation Toolbar */}
-          <div className="flex items-center justify-between gap-3 p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-3xl bg-white/80 dark:bg-zinc-900/70 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-2xl">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1.5"
+              className="flex items-center gap-1.5 rounded-full min-h-[42px] px-5 font-semibold swiftui-press active:scale-[0.97]"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Previous</span>
@@ -568,7 +568,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 size="sm"
                 onClick={handleClearOption}
                 disabled={!currentSelectedOption}
-                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400"
+                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-full"
               >
                 Clear Selection
               </Button>
@@ -579,7 +579,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={handleNext}
-                className="flex items-center gap-1.5 font-semibold"
+                className="flex items-center gap-1.5 font-semibold rounded-full min-h-[42px] px-5 swiftui-press active:scale-[0.97]"
               >
                 <span>Next</span>
                 <ChevronRight className="w-4 h-4" />
@@ -589,7 +589,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={() => setShowSubmitModal(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 text-white flex items-center gap-1.5 font-semibold"
+                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 text-white flex items-center gap-1.5 font-semibold rounded-full min-h-[42px] px-5 swiftui-press active:scale-[0.97]"
               >
                 <span>Finish & Submit</span>
               </Button>
@@ -599,8 +599,8 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
         {/* Right Column: Desktop Persistent Question Palette (4 cols) */}
         <div className="hidden lg:block lg:col-span-4">
-          <Card className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm sticky top-24">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+          <Card className="p-4 sm:p-5 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] bg-white/80 dark:bg-zinc-900/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.45)] backdrop-blur-2xl sticky top-24">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-black/[0.04] dark:border-white/[0.06]">
               <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                 Question Palette
               </h3>
@@ -622,16 +622,16 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
       {/* Mobile/Tablet Palette Modal */}
       {showPaletteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 sm:p-7 rounded-3xl bg-white/95 dark:bg-zinc-900/95 border border-black/[0.08] dark:border-white/10 shadow-2xl backdrop-blur-2xl flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 tracking-tight">
                 Question Palette
               </h3>
               <button
                 type="button"
                 onClick={() => setShowPaletteModal(false)}
-                className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
+                className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors cursor-pointer"
                 aria-label="Close question palette"
               >
                 <X className="w-4 h-4" />
@@ -653,7 +653,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               variant="outline"
               size="sm"
               onClick={() => setShowPaletteModal(false)}
-              className="w-full mt-1"
+              className="w-full mt-1 rounded-full min-h-[40px]"
             >
               Close
             </Button>
@@ -663,10 +663,10 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
 
       {/* Submit Confirmation Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 sm:p-7 rounded-3xl bg-white/95 dark:bg-zinc-900/95 border border-black/[0.08] dark:border-white/10 shadow-2xl backdrop-blur-2xl flex flex-col gap-4">
             <div>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
                 Submit Exercise?
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
@@ -674,7 +674,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 p-3 rounded-md bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-center">
+            <div className="grid grid-cols-3 gap-2.5 p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] text-center">
               <div>
                 <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   {answeredCount}
@@ -702,13 +702,13 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             </div>
 
             {markedCount > 0 && (
-              <p className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-md border border-amber-200 dark:border-amber-800">
+              <p className="text-xs text-amber-800 dark:text-amber-300 bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
                 Notice: You have <strong>{markedCount}</strong> questions marked for review. You can review them in detail on the post-submission verification matrix.
               </p>
             )}
 
             {unansweredCount > 0 && (
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/70 p-2.5 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 bg-black/[0.03] dark:bg-white/[0.05] p-3 rounded-2xl border border-black/[0.06] dark:border-white/[0.08]">
                 You have <strong>{unansweredCount}</strong> unattempted questions that will be marked as skipped (0.00 marks).
               </p>
             )}
@@ -718,7 +718,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 variant="outline"
                 size="md"
                 onClick={() => setShowSubmitModal(false)}
-                className="flex-1"
+                className="flex-1 rounded-full min-h-[44px]"
               >
                 Keep Testing
               </Button>
@@ -729,7 +729,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                   setShowSubmitModal(false);
                   handleFinalSubmit();
                 }}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-full min-h-[44px]"
               >
                 Confirm & Submit
               </Button>

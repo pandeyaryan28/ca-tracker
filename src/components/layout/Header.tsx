@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 w-full min-h-16 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 glass-panel border-b border-zinc-200/80 dark:border-zinc-800/80 px-3 sm:px-6 flex items-center justify-between transition-colors',
+        'sticky top-0 z-30 w-full min-h-16 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 bg-white/75 dark:bg-zinc-900/75 backdrop-blur-2xl border-b border-black/[0.05] dark:border-zinc-800/80 px-3 sm:px-6 flex items-center justify-between transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.02)]',
         className
       )}
     >
@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="touch-target p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="touch-target p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors swiftui-press"
             aria-label="Open Navigation Menu"
             title="Open Mobile Navigation Menu"
           >
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-zinc-100 dark:text-zinc-900 font-bold text-xs shadow-xs shrink-0 cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-zinc-100 dark:text-zinc-900 font-bold text-xs shadow-xs shrink-0 cursor-pointer swiftui-press"
             aria-label="CA Tracker Menu"
             title="CA Foundation Command Center"
           >
@@ -69,16 +69,16 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
       </div>
 
       {/* Action Stats & Theme Toggle */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-2">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-2">
         {/* Cloud Sync Status Pill */}
         <div
           className={cn(
-            'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium select-none transition-colors',
+            'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium select-none transition-colors',
             isSyncing
               ? 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400'
               : isCloudConnected
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-              : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'
+              : 'bg-zinc-500/10 border-black/5 dark:border-white/10 text-zinc-500 dark:text-zinc-400'
           )}
           title={
             isSyncing
@@ -93,14 +93,14 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
           ) : (
             <Cloud className={cn('w-3.5 h-3.5', isCloudConnected ? 'text-emerald-500' : 'text-zinc-400')} />
           )}
-          <span className="hidden md:inline font-medium">
+          <span className="hidden md:inline font-medium text-[11px]">
             {isSyncing ? 'Syncing...' : isCloudConnected ? 'Cloud Synced' : 'Local'}
           </span>
         </div>
 
         {/* Streak Pill */}
         <div
-          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold tabular-nums select-none"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold tabular-nums select-none swiftui-press"
           title={`Current Streak: ${metrics.currentStreakDays} days (Best: ${metrics.bestStreakDays})`}
         >
           <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 fill-orange-500/20 shrink-0" />
@@ -109,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onOpenMobileMenu, cla
 
         {/* Exam Countdown Pill */}
         <div
-          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium tabular-nums select-none"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-zinc-500/10 border border-black/5 dark:border-white/10 text-zinc-700 dark:text-zinc-300 text-xs font-medium tabular-nums select-none swiftui-press"
           title={`Days remaining until CA Foundation Exam: ${metrics.daysUntilExam} days`}
         >
           <Clock className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 shrink-0" />

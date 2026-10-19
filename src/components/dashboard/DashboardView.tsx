@@ -162,11 +162,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onNavi
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Hero Command Center Banner */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-zinc-900 to-zinc-950 text-white dark:from-zinc-900 dark:to-zinc-950 border-zinc-800 p-6 sm:p-8">
+      <Card className="relative overflow-hidden bg-white/80 dark:bg-zinc-900/70 backdrop-blur-2xl border border-black/[0.06] dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)] p-6 sm:p-8 rounded-3xl">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-xl">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="border-zinc-700 text-zinc-300">
+              <Badge variant="outline">
                 ICAI CA Foundation 2024
               </Badge>
               <Badge
@@ -182,19 +182,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onNavi
               </Badge>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               Syllabus Completion: {metrics.overallProgressPercentage}%
             </h2>
 
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               {metrics.completedTopics} of {metrics.totalTopics} topics completed across all 4
               papers. {totalRemainingStudyHours} hrs of study remaining.
             </p>
 
             {/* Live Precision Countdown Ticker */}
             <div className="pt-2">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 font-medium mb-1.5">
-                <Clock className="w-4 h-4 text-emerald-400" />
+              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium mb-1.5">
+                <Clock className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                 <span>Live Target Countdown:</span>
                 <button
                   type="button"
@@ -202,82 +202,82 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate, onNavi
                     setNewExamDate(settings.examDate);
                     setShowDatePicker(true);
                   }}
-                  className="underline hover:text-white transition-colors"
+                  className="underline hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
                 >
                   Edit Exam Date ({settings.examDate})
                 </button>
                 {syncNotice && (
-                  <span className="text-[11px] font-semibold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-md animate-fade-in">
+                  <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full animate-fade-in">
                     ✓ Synced to Cloud
                   </span>
                 )}
               </div>
 
               <div className="grid grid-cols-4 gap-1.5 sm:gap-2 max-w-sm">
-                <div className="bg-zinc-800/80 rounded-xl p-1.5 sm:p-2 text-center border border-zinc-700/60">
-                  <span className="text-base sm:text-xl font-bold text-white tabular-nums block">
+                <div className="bg-black/[0.03] dark:bg-white/[0.05] rounded-2xl p-1.5 sm:p-2 text-center border border-black/[0.04] dark:border-white/[0.08]">
+                  <span className="text-base sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums block">
                     {timeRemaining.days}
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold">Days</span>
+                  <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Days</span>
                 </div>
-                <div className="bg-zinc-800/80 rounded-xl p-1.5 sm:p-2 text-center border border-zinc-700/60">
-                  <span className="text-base sm:text-xl font-bold text-white tabular-nums block">
+                <div className="bg-black/[0.03] dark:bg-white/[0.05] rounded-2xl p-1.5 sm:p-2 text-center border border-black/[0.04] dark:border-white/[0.08]">
+                  <span className="text-base sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums block">
                     {timeRemaining.hours}
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold">Hours</span>
+                  <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Hours</span>
                 </div>
-                <div className="bg-zinc-800/80 rounded-xl p-1.5 sm:p-2 text-center border border-zinc-700/60">
-                  <span className="text-base sm:text-xl font-bold text-white tabular-nums block">
+                <div className="bg-black/[0.03] dark:bg-white/[0.05] rounded-2xl p-1.5 sm:p-2 text-center border border-black/[0.04] dark:border-white/[0.08]">
+                  <span className="text-base sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums block">
                     {timeRemaining.minutes}
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold">Mins</span>
+                  <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Mins</span>
                 </div>
-                <div className="bg-zinc-800/80 rounded-xl p-1.5 sm:p-2 text-center border border-zinc-700/60">
-                  <span className="text-base sm:text-xl font-bold text-emerald-400 tabular-nums block">
+                <div className="bg-black/[0.03] dark:bg-white/[0.05] rounded-2xl p-1.5 sm:p-2 text-center border border-black/[0.04] dark:border-white/[0.08]">
+                  <span className="text-base sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums block">
                     {timeRemaining.seconds}
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-zinc-400 uppercase font-semibold">Secs</span>
+                  <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Secs</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick Metrics Columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 border-t lg:border-t-0 lg:border-l border-zinc-800 pt-4 lg:pt-0 lg:pl-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 border-t lg:border-t-0 lg:border-l border-black/[0.06] dark:border-white/10 pt-4 lg:pt-0 lg:pl-8">
             <div className="space-y-1">
-              <span className="text-xs text-zinc-400 font-medium">Daily Study Streak</span>
-              <div className="text-xl sm:text-2xl font-bold text-orange-400 tabular-nums flex items-center gap-1.5">
-                <Flame className="w-5 h-5 text-orange-400 fill-orange-400/20" />
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Daily Study Streak</span>
+              <div className="text-xl sm:text-2xl font-bold text-orange-500 tabular-nums flex items-center gap-1.5">
+                <Flame className="w-5 h-5 text-orange-500 fill-orange-500/20" />
                 {metrics.currentStreakDays}d
               </div>
-              <span className="text-[11px] text-zinc-500 block">
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500 block">
                 Best: {metrics.bestStreakDays} days
               </span>
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs text-zinc-400 font-medium">Study Logged</span>
-              <div className="text-xl sm:text-2xl font-bold text-emerald-400 tabular-nums flex items-center gap-1.5">
-                <Award className="w-5 h-5 text-emerald-400" />
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Study Logged</span>
+              <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums flex items-center gap-1.5">
+                <Award className="w-5 h-5 text-emerald-500" />
                 {metrics.totalStudyHoursLogged}h
               </div>
-              <span className="text-[11px] text-zinc-500 block">
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500 block">
                 Goal: {settings.dailyGoalHours}h / day
               </span>
             </div>
 
             <div className="space-y-1 col-span-2 sm:col-span-1">
-              <span className="text-xs text-zinc-400 font-medium">Pace Required</span>
-              <div className="text-xl sm:text-2xl font-bold text-cyan-400 tabular-nums flex items-center gap-1.5">
-                <Target className="w-5 h-5 text-cyan-400" />
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Pace Required</span>
+              <div className="text-xl sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400 tabular-nums flex items-center gap-1.5">
+                <Target className="w-5 h-5 text-cyan-500" />
                 {requiredDailyStudyHours}h
               </div>
-              <span className="text-[11px] text-zinc-500 block">per day to finish syllabus</span>
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500 block">per day to finish syllabus</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-zinc-800/80">
+        <div className="mt-6 pt-4 border-t border-black/[0.06] dark:border-white/10">
           <ProgressBar value={metrics.overallProgressPercentage} size="md" colorHex="#10B981" />
         </div>
       </Card>

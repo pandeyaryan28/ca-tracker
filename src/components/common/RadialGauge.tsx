@@ -43,7 +43,7 @@ export const RadialGauge: React.FC<RadialGaugeProps> = ({
             stroke="currentColor"
             strokeWidth={strokeWidth}
             fill="transparent"
-            className="text-zinc-200 dark:text-zinc-800"
+            className="text-zinc-200/60 dark:text-zinc-800/60"
           />
           {/* Animated Progress Stroke */}
           <circle
@@ -56,7 +56,7 @@ export const RadialGauge: React.FC<RadialGaugeProps> = ({
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             fill="transparent"
-            className="transition-all duration-700 ease-out"
+            className="transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
           />
         </svg>
 

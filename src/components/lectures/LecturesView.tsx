@@ -146,15 +146,15 @@ export const LecturesView: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
-      {/* Top Header & Cloud Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Top Header & Cloud Status — Apple Liquid Glass Command Card */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 p-6 sm:p-7 rounded-3xl border border-white/20 dark:border-white/10 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.45)]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-2">
             <Badge variant={headerInfo.badgeVariant} size="sm">
               {headerInfo.badgeText}
             </Badge>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-              <span className="w-1.5 h-1.5 rounded-sm bg-emerald-600 dark:bg-emerald-400" />
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
               Cloud Synced (Firestore)
             </span>
           </div>
@@ -162,13 +162,13 @@ export const LecturesView: React.FC = () => {
             <Film className="w-7 h-7 text-red-600 dark:text-red-500" />
             {headerInfo.title}
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 max-w-2xl leading-relaxed">
             {headerInfo.subtitle}
           </p>
         </div>
 
         {/* Sync Info */}
-        <div className="flex items-center gap-2 text-xs text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700/60 self-start sm:self-center">
+        <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100/70 dark:bg-zinc-800/70 px-3.5 py-1.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 self-start sm:self-center">
           <Cloud className="w-4 h-4 text-blue-500" />
           <span>
             {isCloudConnected ? 'Connected to Cloud Firestore' : 'Reconnecting...'}
@@ -181,26 +181,26 @@ export const LecturesView: React.FC = () => {
         </div>
       </div>
 
-      {/* Subject Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full min-w-0 flex-nowrap">
+      {/* Subject Filter Tabs — Apple Segmented Control */}
+      <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-200/50 dark:bg-zinc-800/50 backdrop-blur-md border border-zinc-300/40 dark:border-zinc-700/40 overflow-x-auto max-w-full">
         <button
           type="button"
           onClick={() => setSelectedSubject('all')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
+            'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all flex items-center gap-2 whitespace-nowrap shrink-0 swiftui-press active:scale-[0.98]',
             selectedSubject === 'all'
-              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm'
-              : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+              ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
           )}
         >
           <Film className="w-3.5 h-3.5" />
           <span>All Papers</span>
           <span
             className={cn(
-              'px-1.5 py-0.5 rounded-md text-[10px] font-bold',
+              'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
               selectedSubject === 'all'
-                ? 'bg-zinc-700 text-zinc-100 dark:bg-zinc-300 dark:text-zinc-900'
-                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
             )}
           >
             {sortedLectures.length}
@@ -211,20 +211,20 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper1')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
+            'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all flex items-center gap-2 whitespace-nowrap shrink-0 swiftui-press active:scale-[0.98]',
             selectedSubject === 'paper1'
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-              : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10'
           )}
         >
           <BookOpen className="w-3.5 h-3.5" />
           <span>Paper 1: Accounting</span>
           <span
             className={cn(
-              'px-1.5 py-0.5 rounded-md text-[10px] font-bold',
+              'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
               selectedSubject === 'paper1'
-                ? 'bg-emerald-800 text-emerald-100'
-                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                ? 'bg-emerald-700 text-white'
+                : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
             )}
           >
             {paper1Lectures.length}
@@ -235,20 +235,20 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper2')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
+            'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all flex items-center gap-2 whitespace-nowrap shrink-0 swiftui-press active:scale-[0.98]',
             selectedSubject === 'paper2'
-              ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
-              : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+              ? 'bg-violet-600 text-white shadow-sm'
+              : 'text-violet-700 dark:text-violet-400 hover:bg-violet-500/10'
           )}
         >
           <BookOpen className="w-3.5 h-3.5" />
           <span>Paper 2: Business Laws</span>
           <span
             className={cn(
-              'px-1.5 py-0.5 rounded-md text-[10px] font-bold',
+              'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
               selectedSubject === 'paper2'
-                ? 'bg-violet-800 text-violet-100'
-                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                ? 'bg-violet-700 text-white'
+                : 'bg-violet-100 dark:bg-violet-900/60 text-violet-800 dark:text-violet-300'
             )}
           >
             {paper2Lectures.length}
@@ -259,20 +259,20 @@ export const LecturesView: React.FC = () => {
           type="button"
           onClick={() => setSelectedSubject('paper4')}
           className={cn(
-            'px-3.5 py-2 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 border whitespace-nowrap shrink-0',
+            'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all flex items-center gap-2 whitespace-nowrap shrink-0 swiftui-press active:scale-[0.98]',
             selectedSubject === 'paper4'
-              ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-              : 'bg-white dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-amber-700 dark:text-amber-400 hover:bg-amber-500/10'
           )}
         >
           <BookOpen className="w-3.5 h-3.5" />
           <span>Paper 4: Economics</span>
           <span
             className={cn(
-              'px-1.5 py-0.5 rounded-md text-[10px] font-bold',
+              'px-1.5 py-0.2 rounded-full text-[10px] font-bold',
               selectedSubject === 'paper4'
-                ? 'bg-amber-800 text-amber-100'
-                : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                ? 'bg-amber-700 text-white'
+                : 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300'
             )}
           >
             {paper4Lectures.length}
@@ -280,15 +280,15 @@ export const LecturesView: React.FC = () => {
         </button>
       </div>
 
-      {/* Progress Cards */}
+      {/* Progress Cards — Apple Squircle Glass Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 flex flex-col justify-between">
+        <Card className="p-5 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Lectures</span>
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Lectures</span>
             <Film className="w-4 h-4 text-zinc-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{totalCount}</span>
+            <span className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{totalCount}</span>
             <span className="text-xs text-zinc-400 font-medium">{headerInfo.totalSubtitle}</span>
           </div>
           <div className="mt-3">
@@ -296,13 +296,13 @@ export const LecturesView: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-4 flex flex-col justify-between">
+        <Card className="p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-500/10 backdrop-blur-xl shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Watched</span>
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Watched</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{watchedCount}</span>
+            <span className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{watchedCount}</span>
             <span className="text-xs text-zinc-400 font-medium">/ {totalCount} completed</span>
           </div>
           <div className="mt-3">
@@ -310,13 +310,13 @@ export const LecturesView: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-4 flex flex-col justify-between">
+        <Card className="p-5 rounded-2xl border border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 backdrop-blur-xl shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Watch Completion</span>
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Watch Completion</span>
             <TrendingUp className="w-4 h-4 text-amber-500" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{watchPercentage}%</span>
+            <span className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{watchPercentage}%</span>
             <span className="text-xs text-zinc-400 font-medium">{remainingCount} left to watch</span>
           </div>
           <div className="mt-3">
@@ -325,18 +325,18 @@ export const LecturesView: React.FC = () => {
         </Card>
       </div>
 
-      {/* Search & Filter Controls */}
-      <Card className="p-4">
+      {/* Search & Filter Controls — Apple Liquid Glass Toolbar */}
+      <Card className="p-4 rounded-2xl border border-white/20 dark:border-white/10 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-xl shadow-sm">
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+          <div className="inline-flex items-center gap-1 p-1 rounded-full bg-zinc-200/50 dark:bg-zinc-800/50 backdrop-blur-md border border-zinc-300/40 dark:border-zinc-700/40">
             <button
               type="button"
               onClick={() => setFilter('all')}
               className={cn(
-                'px-3 py-1.5 text-xs font-medium rounded-lg transition-all',
+                'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all swiftui-press active:scale-[0.98]',
                 filter === 'all'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
@@ -346,9 +346,9 @@ export const LecturesView: React.FC = () => {
               type="button"
               onClick={() => setFilter('unwatched')}
               className={cn(
-                'px-3 py-1.5 text-xs font-medium rounded-lg transition-all',
+                'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all swiftui-press active:scale-[0.98]',
                 filter === 'unwatched'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
@@ -358,9 +358,9 @@ export const LecturesView: React.FC = () => {
               type="button"
               onClick={() => setFilter('watched')}
               className={cn(
-                'px-3 py-1.5 text-xs font-medium rounded-lg transition-all',
+                'px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all swiftui-press active:scale-[0.98]',
                 filter === 'watched'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
               )}
             >
@@ -370,13 +370,13 @@ export const LecturesView: React.FC = () => {
 
           {/* Search Box */}
           <div className="relative flex-1 sm:max-w-xs">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search lectures or chapters..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
+              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-full bg-white/70 dark:bg-zinc-800/70 border border-zinc-200/70 dark:border-zinc-700/70 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
             />
           </div>
         </div>
@@ -384,8 +384,8 @@ export const LecturesView: React.FC = () => {
 
       {/* Embedded Video Player Modal (Optional In-App Viewer) */}
       {activePreviewLecture && (
-        <Card className="p-4 border-2 border-red-500/30 bg-zinc-900 text-zinc-100 overflow-hidden shadow-2xl">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-3">
+        <Card className="p-5 rounded-3xl border border-red-500/30 bg-zinc-900 text-zinc-100 overflow-hidden shadow-2xl">
+          <div className="flex items-center justify-between pb-3.5 border-b border-zinc-800 mb-3.5">
             <div className="flex items-center gap-2">
               <Play className="w-4 h-4 text-red-500 fill-current" />
               <span className="text-xs font-semibold text-zinc-200 truncate max-w-xl">
@@ -395,12 +395,12 @@ export const LecturesView: React.FC = () => {
             <button
               type="button"
               onClick={() => setActivePreviewLecture(null)}
-              className="text-xs text-zinc-400 hover:text-zinc-100 px-2 py-1 rounded bg-zinc-800 transition-colors"
+              className="text-xs text-zinc-400 hover:text-zinc-100 px-3 py-1 rounded-full bg-zinc-800 transition-colors swiftui-press"
             >
               Close Player
             </button>
           </div>
-          <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
+          <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black">
             <iframe
               src={`https://www.youtube-nocookie.com/embed/${activePreviewLecture.youtubeId}?autoplay=1`}
               title={activePreviewLecture.title}
@@ -413,9 +413,9 @@ export const LecturesView: React.FC = () => {
       )}
 
       {/* Lectures List */}
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {filteredLectures.length === 0 ? (
-          <Card className="p-12 text-center">
+          <Card className="p-12 text-center rounded-3xl border border-white/20 dark:border-white/10 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-2xl shadow-sm">
             <Film className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
             <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200">No lectures found</h3>
             <p className="text-xs text-zinc-400 mt-1">Try adjusting your filter or search query.</p>
@@ -429,10 +429,8 @@ export const LecturesView: React.FC = () => {
               <Card
                 key={lec.id}
                 className={cn(
-                  'p-4 transition-all duration-200 hover:shadow-md border',
-                  lec.watched
-                    ? 'bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200/60 dark:border-emerald-900/40'
-                    : 'hover:border-zinc-300 dark:hover:border-zinc-700'
+                  'p-5 rounded-2xl transition-all duration-200 hover:shadow-md border border-white/20 dark:border-white/10 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-xl',
+                  lec.watched && 'bg-emerald-500/[0.04] dark:bg-emerald-500/[0.08] border-emerald-500/30'
                 )}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -441,13 +439,13 @@ export const LecturesView: React.FC = () => {
                     {/* Sequence Badge */}
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0',
+                        'w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-xs',
                         lec.watched
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
                           : isLaw
-                          ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300'
+                          ? 'bg-violet-500/20 text-violet-700 dark:text-violet-300'
                           : isEco
-                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
+                          ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300'
                           : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
                       )}
                     >
@@ -482,7 +480,7 @@ export const LecturesView: React.FC = () => {
                         )}
 
                         {lec.watched && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                             <Check className="w-3 h-3" />
                             Watched
                           </span>
@@ -512,7 +510,7 @@ export const LecturesView: React.FC = () => {
                       onClick={() =>
                         setActivePreviewLecture(activePreviewLecture?.id === lec.id ? null : lec)
                       }
-                      className="text-xs touch-target min-h-[38px]"
+                      className="text-xs rounded-full swiftui-press active:scale-[0.96]"
                       title="Watch inside app"
                     >
                       <Play className="w-3.5 h-3.5 mr-1" />
@@ -524,12 +522,12 @@ export const LecturesView: React.FC = () => {
                       href={lec.videoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm touch-target min-h-[38px]"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition-all shadow-sm swiftui-press active:scale-[0.98]"
                       title="Watch Lecture on YouTube"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       YouTube
-                      <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                      <ExternalLink className="w-3 h-3 opacity-80" />
                     </a>
 
                     {/* Cloud Synced Watched Toggle */}
@@ -537,7 +535,7 @@ export const LecturesView: React.FC = () => {
                       type="button"
                       onClick={() => toggleLectureWatched(lec.id)}
                       className={cn(
-                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border touch-target min-h-[38px]',
+                        'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border swiftui-press active:scale-[0.98]',
                         lec.watched
                           ? 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-sm'
                           : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700'

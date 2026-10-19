@@ -28,7 +28,6 @@ function parseCSVRow(rowStr: string): string[] {
 
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
-        // Escaped quote
         current += '"';
         i++;
       } else {
@@ -225,66 +224,72 @@ export const IngestionView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-          Schedule Ingestion & Data Management Hub
-        </h2>
-        <p className="text-xs text-zinc-500">
-          Export backup archives, ingest coaching schedules via CSV/JSON, or restore the official
-          ICAI 4-paper syllabus blueprint.
-        </p>
+    <div className="space-y-6 animate-fade-in pb-12">
+      {/* Liquid Glass Command Header */}
+      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.4)]">
+        <div className="space-y-1.5 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold tracking-wide uppercase border border-blue-500/20">
+            Data Infrastructure & Portability
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Schedule Ingestion & Data Management Hub
+          </h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium max-w-xl">
+            Export backup archives, ingest coaching schedules via CSV/JSON, or restore the official
+            ICAI 4-paper syllabus blueprint.
+          </p>
+        </div>
       </div>
 
       {statusMessage && (
         <div
-          className={`p-3.5 rounded-xl text-xs flex items-center gap-2 border ${
+          className={`p-4 rounded-2xl text-xs flex items-center gap-2.5 backdrop-blur-xl border shadow-sm ${
             statusMessage.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
-              : 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+              ? 'bg-emerald-500/[0.08] dark:bg-emerald-500/[0.12] border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+              : 'bg-rose-500/[0.08] dark:bg-rose-500/[0.12] border-rose-500/30 text-rose-800 dark:text-rose-200'
           }`}
         >
           {statusMessage.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           ) : (
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
           )}
-          <span className="font-medium">{statusMessage.text}</span>
+          <span className="font-semibold">{statusMessage.text}</span>
         </div>
       )}
 
       {/* Blueprint Statistics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="space-y-1">
-          <span className="text-xs text-zinc-500 font-medium">Official Papers</span>
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">4</div>
-          <span className="text-[11px] text-zinc-400">ACC, BLAW, QA, BECO</span>
+        <Card className="p-5 rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-1.5">
+          <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Official Papers</span>
+          <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">4</div>
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">ACC, BLAW, QA, BECO</span>
         </Card>
 
-        <Card className="space-y-1">
-          <span className="text-xs text-zinc-500 font-medium">Total Chapters</span>
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+        <Card className="p-5 rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-1.5">
+          <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Total Chapters</span>
+          <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
             {chapters.length}
           </div>
-          <span className="text-[11px] text-zinc-400">Across 4 Papers</span>
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Across 4 Papers</span>
         </Card>
 
-        <Card className="space-y-1">
-          <span className="text-xs text-zinc-500 font-medium">Active Topics</span>
-          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+        <Card className="p-5 rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-1.5">
+          <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Active Topics</span>
+          <div className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
             {topics.length}
           </div>
-          <span className="text-[11px] text-zinc-400">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
             {topics.filter((t) => t.isCustom).length} custom added
           </span>
         </Card>
 
-        <Card className="space-y-1">
-          <span className="text-xs text-zinc-500 font-medium">Completed Topics</span>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+        <Card className="p-5 rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-1.5">
+          <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Completed Topics</span>
+          <div className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums tracking-tight">
             {topics.filter((t) => t.status === 'completed').length}
           </div>
-          <span className="text-[11px] text-zinc-400">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
             {((topics.filter((t) => t.status === 'completed').length / Math.max(1, topics.length)) * 100).toFixed(0)}% completion
           </span>
         </Card>
@@ -292,25 +297,32 @@ export const IngestionView: React.FC = () => {
 
       {/* Export & Reset Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Download className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
-            <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
-              Export Backup Archives
-            </h3>
+        <Card className="p-6 sm:p-7 rounded-3xl bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Download className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
+                Export Backup Archives
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Download your state as JSON or RFC-4180 CSV
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
             Export your preparation state, topic progress, test series records, and spaced revision
-            plans as JSON or RFC-4180 compliant CSV.
+            plans with full offline portability.
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-2.5 pt-2">
             <Button
               size="sm"
               variant="secondary"
               leftIcon={<FileCode className="w-4 h-4" />}
               onClick={handleDownloadJSON}
-              className="touch-target min-h-[38px]"
+              className="rounded-full swiftui-press"
             >
               Export JSON
             </Button>
@@ -319,7 +331,7 @@ export const IngestionView: React.FC = () => {
               variant="secondary"
               leftIcon={<FileSpreadsheet className="w-4 h-4" />}
               onClick={handleDownloadCSV}
-              className="touch-target min-h-[38px]"
+              className="rounded-full swiftui-press"
             >
               Export CSV
             </Button>
@@ -328,23 +340,30 @@ export const IngestionView: React.FC = () => {
               variant="outline"
               leftIcon={<Download className="w-4 h-4" />}
               onClick={handleDownloadTemplate}
-              className="touch-target min-h-[38px]"
+              className="rounded-full swiftui-press"
             >
               Sample CSV Template
             </Button>
           </div>
         </Card>
 
-        <Card className="space-y-4">
-          <div className="flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-amber-500" />
-            <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
-              Restore Official Blueprint
-            </h3>
+        <Card className="p-6 sm:p-7 rounded-3xl bg-amber-500/[0.04] dark:bg-amber-500/[0.06] backdrop-blur-2xl border border-amber-500/20 shadow-[0_8px_30px_rgba(245,158,11,0.04)] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <RefreshCw className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
+                Restore Official Blueprint
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Authoritative ICAI Scheme (May 2026 Onwards)
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-zinc-500">
-            Restore all 4 papers, 46 chapters, and 99 units/chapters to the authoritative ICAI scheme (May 2026 onwards). You can
-            selectively preserve your custom topics, mock tests, and settings.
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            Restore all 4 papers, 46 chapters, and 99 units/chapters to the authoritative ICAI scheme. You can
+            selectively preserve custom topics, mock tests, and settings.
           </p>
           <div className="pt-2">
             <Button
@@ -352,7 +371,7 @@ export const IngestionView: React.FC = () => {
               variant="danger"
               leftIcon={<RefreshCw className="w-4 h-4" />}
               onClick={() => setShowResetModal(true)}
-              className="touch-target min-h-[38px]"
+              className="rounded-full swiftui-press"
             >
               Reset to ICAI Blueprint...
             </Button>
@@ -361,13 +380,20 @@ export const IngestionView: React.FC = () => {
       </div>
 
       {/* Ingestion & Import Panel */}
-      <Card className="space-y-4">
+      <Card className="p-6 sm:p-7 rounded-3xl bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
-            <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
-              Schedule & Backup Ingestion Engine
-            </h3>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center">
+              <Upload className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">
+                Schedule & Backup Ingestion Engine
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Upload CSV or JSON files to merge or replace schedules
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -383,7 +409,7 @@ export const IngestionView: React.FC = () => {
               variant="secondary"
               leftIcon={<Upload className="w-4 h-4" />}
               onClick={() => fileInputRef.current?.click()}
-              className="touch-target min-h-[38px] w-full sm:w-auto"
+              className="rounded-full swiftui-press w-full sm:w-auto"
             >
               Upload File (.json / .csv)
             </Button>
@@ -391,20 +417,20 @@ export const IngestionView: React.FC = () => {
         </div>
 
         <form onSubmit={handleProcessImport} className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-zinc-50 dark:bg-zinc-900/60 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-black/[0.02] dark:bg-white/[0.03] p-3 rounded-2xl border border-black/5 dark:border-white/5">
             {/* Format Selector */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-500 font-medium">Payload Format:</span>
-              <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Payload Format:</span>
+              <div className="flex items-center p-1 rounded-full bg-white dark:bg-zinc-800 border border-black/5 dark:border-white/10 shadow-xs">
                 {(['json', 'csv'] as const).map((fmt) => (
                   <button
                     key={fmt}
                     type="button"
                     onClick={() => setImportFormat(fmt)}
-                    className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-colors touch-target min-h-[32px] ${
+                    className={`px-3 py-1 text-xs rounded-full font-semibold transition-all swiftui-press ${
                       importFormat === fmt
-                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                     }`}
                   >
                     {fmt.toUpperCase()}
@@ -415,23 +441,29 @@ export const IngestionView: React.FC = () => {
 
             {/* Conflict Resolution Mode */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs text-zinc-500 font-medium">Conflict Resolution:</span>
-              {(['merge', 'overwrite', 'skip'] as const).map((mode) => (
-                <label
-                  key={mode}
-                  className="inline-flex items-center gap-1.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer touch-target min-h-[32px]"
-                >
-                  <input
-                    type="radio"
-                    name="importMode"
-                    value={mode}
-                    checked={importMode === mode}
-                    onChange={() => setImportMode(mode)}
-                    className="accent-zinc-900 dark:accent-zinc-100"
-                  />
-                  <span className="capitalize">{mode}</span>
-                </label>
-              ))}
+              <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Conflict Resolution:</span>
+              <div className="flex items-center gap-2">
+                {(['merge', 'overwrite', 'skip'] as const).map((mode) => (
+                  <label
+                    key={mode}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer border transition-all ${
+                      importMode === mode
+                        ? 'bg-white dark:bg-zinc-800 border-black/10 dark:border-white/20 text-zinc-900 dark:text-zinc-100 shadow-xs'
+                        : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="importMode"
+                      value={mode}
+                      checked={importMode === mode}
+                      onChange={() => setImportMode(mode)}
+                      className="accent-zinc-900 dark:accent-zinc-100"
+                    />
+                    <span className="capitalize">{mode}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -440,10 +472,10 @@ export const IngestionView: React.FC = () => {
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
             rows={6}
-            className="w-full p-3 text-xs font-mono rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+            className="w-full p-4 text-xs font-mono rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <span className="text-xs text-zinc-400">
               {importFormat === 'csv'
                 ? 'Expected CSV Headers: TopicID, SubjectID, ChapterName, Title, Status, EstimatedHours, TargetDate'
@@ -456,7 +488,7 @@ export const IngestionView: React.FC = () => {
               variant="primary"
               disabled={!importText.trim()}
               leftIcon={<Upload className="w-4 h-4" />}
-              className="touch-target min-h-[38px] w-full sm:w-auto"
+              className="rounded-full swiftui-press w-full sm:w-auto"
             >
               Process Ingestion
             </Button>
@@ -464,76 +496,82 @@ export const IngestionView: React.FC = () => {
         </form>
       </Card>
 
-      {/* Reset Confirmation Modal */}
+      {/* Reset Confirmation Modal Sheet */}
       {showResetModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <Card className="w-full max-w-md p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <RefreshCw className="w-5 h-5 text-amber-500" />
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-                Confirm ICAI Syllabus Reset
-              </h3>
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+          <Card className="w-full max-w-md p-6 sm:p-7 space-y-5 rounded-3xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl border border-white/30 dark:border-white/10 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <RefreshCw className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  Confirm ICAI Syllabus Reset
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Authoritative blueprint restoration</p>
+              </div>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
               This will restore all 99 units/chapters to their default pending state. Select which items
               you wish to preserve:
             </p>
 
-            <div className="space-y-2.5 pt-1">
-              <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
+            <div className="space-y-3 pt-1">
+              <label className="flex items-center gap-2.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={resetOptions.preserveCustomTopics}
                   onChange={(e) =>
                     setResetOptions((prev) => ({ ...prev, preserveCustomTopics: e.target.checked }))
                   }
-                  className="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                  className="w-4 h-4 rounded-md accent-zinc-900 dark:accent-zinc-100"
                 />
                 <span>Preserve user-created custom topics</span>
               </label>
 
-              <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              <label className="flex items-center gap-2.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={resetOptions.preserveTests}
                   onChange={(e) =>
                     setResetOptions((prev) => ({ ...prev, preserveTests: e.target.checked }))
                   }
-                  className="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                  className="w-4 h-4 rounded-md accent-zinc-900 dark:accent-zinc-100"
                 />
                 <span>Preserve mock test logs & performance analytics</span>
               </label>
 
-              <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              <label className="flex items-center gap-2.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={resetOptions.preserveRevisions}
                   onChange={(e) =>
                     setResetOptions((prev) => ({ ...prev, preserveRevisions: e.target.checked }))
                   }
-                  className="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                  className="w-4 h-4 rounded-md accent-zinc-900 dark:accent-zinc-100"
                 />
                 <span>Preserve spaced revision cycles & mistake notes</span>
               </label>
 
-              <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              <label className="flex items-center gap-2.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={resetOptions.preserveSettings}
                   onChange={(e) =>
                     setResetOptions((prev) => ({ ...prev, preserveSettings: e.target.checked }))
                   }
-                  className="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                  className="w-4 h-4 rounded-md accent-zinc-900 dark:accent-zinc-100"
                 />
                 <span>Preserve user settings (exam target date, study goals)</span>
               </label>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-black/5 dark:border-white/5">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
+                className="rounded-full swiftui-press"
                 onClick={() => setShowResetModal(false)}
               >
                 Cancel
@@ -542,6 +580,7 @@ export const IngestionView: React.FC = () => {
                 type="button"
                 variant="danger"
                 size="sm"
+                className="rounded-full swiftui-press"
                 onClick={handleConfirmReset}
               >
                 Reset Syllabus

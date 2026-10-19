@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       className={cn(
-        'hidden lg:flex flex-col justify-between h-screen sticky top-0 z-40 transition-all duration-300 ease-in-out glass-sidebar select-none',
+        'hidden lg:flex flex-col justify-between h-screen sticky top-0 z-40 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] glass-sidebar bg-white/75 dark:bg-zinc-900/60 backdrop-blur-2xl border-r border-black/[0.05] dark:border-white/10 select-none',
         collapsed ? 'w-20' : 'w-64',
         className
       )}
@@ -70,9 +70,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Top Brand Header */}
       <div>
-        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-200/80 dark:border-zinc-800/80">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-black/[0.05] dark:border-white/10">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-2xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-zinc-100 dark:text-zinc-900 shadow-md shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-zinc-100 dark:text-zinc-900 shadow-sm shrink-0">
               <GraduationCap className="w-5 h-5" />
             </div>
             {!collapsed && (
@@ -90,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors swiftui-press"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             aria-label={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
@@ -116,10 +116,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     type="button"
                     onClick={() => onTabChange(item.id)}
                     className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs transition-all duration-150 relative group min-h-[40px] touch-target',
+                      'w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] relative group min-h-[40px] touch-target swiftui-press',
                       isActive
-                        ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 shadow-sm'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                        ? 'bg-zinc-900 text-zinc-50 dark:bg-white dark:text-zinc-950 shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
                     )}
                     title={collapsed ? item.label : undefined}
                     aria-label={item.id === 'tests' ? 'Tests & Test Series' : item.label}
@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Subject Mini Progress Widget (Expanded only) */}
       {!collapsed && (
-        <div className="p-4 m-3 rounded-2xl bg-zinc-100/60 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 space-y-3">
+        <div className="p-4 m-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-zinc-700 dark:text-zinc-300">
               Syllabus Completion
@@ -157,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               return (
                 <div
                   key={pId}
-                  className="flex flex-col items-center p-1.5 rounded-lg bg-white/70 dark:bg-zinc-800/70 border border-zinc-200/40 dark:border-zinc-700/40"
+                  className="flex flex-col items-center p-1.5 rounded-xl bg-white/70 dark:bg-zinc-800/70 border border-black/[0.04] dark:border-white/[0.06]"
                   title={`${group?.meta.shortName || pId}: ${pct}% completed`}
                 >
                   <span className="text-[9px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">
