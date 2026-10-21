@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Topic,
   TopicStatus,
@@ -33,22 +33,15 @@ import { useAuth } from '@/context/AuthContext';
 import {
   SINGLE_USER_ID,
   isTestEnv,
-  saveTopicToFirestore,
-  deleteTopicFromFirestore,
-  saveTestToFirestore,
-  deleteTestFromFirestore,
-  saveRevisionToFirestore,
-  deleteRevisionFromFirestore,
   saveSettingsToFirestore,
   fetchUserSettingsFromFirestore,
-  saveLectureToFirestore,
-  syncLecturesWithCloud,
-  saveScheduleEntryToFirestore,
-  deleteScheduleEntryFromFirestore,
-  syncScheduleWithCloud,
   batchUploadAllData,
   syncAndFillSyllabusWithCloud,
   subscribeToUserData,
+  isHardReloadOrRefresh,
+  fetchAllCAUserDataFromFirestore,
+  flushPendingCAChangesToFirestore,
+  CAPendingSync,
 } from '@/lib/firebase';
 
 const seed = loadSeedSyllabus();
@@ -151,15 +144,180 @@ function saveCachedTopics(topics: Topic[]): void {
   }
 }
 
+function loadCachedLectures(): Lecture[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.LECTURES) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error reading lectures from localStorage:', err);
+  }
+  return seedLectures;
+}
+
+function saveCachedLectures(lectures: Lecture[]): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.LECTURES, JSON.stringify(lectures));
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error saving lectures to localStorage:', err);
+  }
+}
+
+function loadCachedSchedule(): ScheduleEntry[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.SCHEDULE) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error reading schedule from localStorage:', err);
+  }
+  return seedSchedule;
+}
+
+function saveCachedSchedule(schedule: ScheduleEntry[]): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule));
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error saving schedule to localStorage:', err);
+  }
+}
+
+function loadCachedRevisions(): RevisionRecord[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.REVISIONS) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error reading revisions from localStorage:', err);
+  }
+  return [];
+}
+
+function saveCachedRevisions(revisions: RevisionRecord[]): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.REVISIONS, JSON.stringify(revisions));
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error saving revisions to localStorage:', err);
+  }
+}
+
+function loadCachedTests(): TestRecord[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.TESTS) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error reading tests from localStorage:', err);
+  }
+  return [];
+}
+
+function saveCachedTests(tests: TestRecord[]): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.TESTS, JSON.stringify(tests));
+    }
+  } catch (err) {
+    console.warn('[DataContext] Error saving tests to localStorage:', err);
+  }
+}
+
+function loadPendingSync(): CAPendingSync {
+  try {
+    if (typeof window === 'undefined') return {};
+    const raw = localStorage.getItem(STORAGE_KEYS.PENDING_SYNC);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePendingSync(pending: CAPendingSync): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.PENDING_SYNC, JSON.stringify(pending));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function clearPendingSync(): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEYS.PENDING_SYNC);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function recordPendingSync(diff: Partial<CAPendingSync>): void {
+  try {
+    const current = loadPendingSync();
+    const updated: CAPendingSync = {
+      ...current,
+      topics: diff.topics ? { ...current.topics, ...diff.topics } : current.topics,
+      deletedTopicIds: diff.deletedTopicIds
+        ? Array.from(new Set([...(current.deletedTopicIds || []), ...diff.deletedTopicIds]))
+        : current.deletedTopicIds,
+      lectures: diff.lectures ? { ...current.lectures, ...diff.lectures } : current.lectures,
+      schedule: diff.schedule ? { ...current.schedule, ...diff.schedule } : current.schedule,
+      deletedScheduleIds: diff.deletedScheduleIds
+        ? Array.from(new Set([...(current.deletedScheduleIds || []), ...diff.deletedScheduleIds]))
+        : current.deletedScheduleIds,
+      revisions: diff.revisions ? { ...current.revisions, ...diff.revisions } : current.revisions,
+      deletedRevisionIds: diff.deletedRevisionIds
+        ? Array.from(new Set([...(current.deletedRevisionIds || []), ...diff.deletedRevisionIds]))
+        : current.deletedRevisionIds,
+      tests: diff.tests ? { ...current.tests, ...diff.tests } : current.tests,
+      deletedTestIds: diff.deletedTestIds
+        ? Array.from(new Set([...(current.deletedTestIds || []), ...diff.deletedTestIds]))
+        : current.deletedTestIds,
+      settings: diff.settings || current.settings,
+    };
+    savePendingSync(updated);
+  } catch (err) {
+    console.warn('[DataContext] Error recording pending sync:', err);
+  }
+}
+
 function getInitialState(): DataState {
   const initialSettings = loadCachedSettings();
   const initialTopics = loadCachedTopics();
+  const initialLectures = loadCachedLectures();
+  const initialSchedule = loadCachedSchedule();
+  const initialRevisions = loadCachedRevisions();
+  const initialTests = loadCachedTests();
+
   return {
     topics: initialTopics,
-    revisions: [],
-    tests: [],
-    lectures: seedLectures,
-    schedule: seedSchedule,
+    revisions: initialRevisions,
+    tests: initialTests,
+    lectures: initialLectures,
+    schedule: initialSchedule,
     settings: initialSettings,
     subjects: seed.subjects,
     chapters: seed.chapters,
@@ -693,198 +851,187 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [state, dispatch] = useReducer(dataReducer, undefined, getInitialState);
   const stateRef = useRef(state);
   stateRef.current = state;
-  const initialCloudSyncAttempted = useRef(false);
-  const initialLecturesSyncAttempted = useRef(false);
-  const initialScheduleSyncAttempted = useRef(false);
-
-  useEffect(() => {
-    initialCloudSyncAttempted.current = false;
-    initialLecturesSyncAttempted.current = false;
-    initialScheduleSyncAttempted.current = false;
-  }, [currentUserId]);
-
-  // Real-time Cloud Synchronization Listener scoped to authenticated user
-  useEffect(() => {
-    if (!currentUserId) {
-      // In guest / unauthenticated mode, fall back to offline local storage without forbidden cloud writes
+  // One-time Cloud Sync: flushes dirty/pending local changes and fetches fresh snapshot.
+  // NEVER uses continuous snapshot listeners; runs strictly on-demand.
+  const syncWithCloud = useCallback(async (force = false): Promise<void> => {
+    const uid = currentUserIdRef.current;
+    if (!uid) {
       dispatch({ type: 'SET_CLOUD_CONNECTED', payload: false });
       return;
     }
 
     dispatch({ type: 'SET_SYNCING', payload: true });
+    try {
+      // 1. Flush any pending dirty writes accumulated in localStorage
+      const pending = loadPendingSync();
+      await flushPendingCAChangesToFirestore(uid, pending);
+      clearPendingSync();
 
-    // 1. Immediate direct cloud settings hydration for instant multi-device sync
-    fetchUserSettingsFromFirestore(currentUserId)
-      .then((cloudSettings) => {
+      // 2. Perform atomic one-time fetch of all collections
+      const cloudData = await fetchAllCAUserDataFromFirestore(uid);
+
+      // Merge topics
+      let finalTopics = stateRef.current.topics;
+      if (cloudData.topics && cloudData.topics.length > 0) {
+        const cloudMap = new Map(cloudData.topics.map((t) => [t.id, t]));
+        finalTopics = seed.topics.map((seedTop) => {
+          const cloudTop = cloudMap.get(seedTop.id);
+          if (cloudTop) {
+            return {
+              ...seedTop,
+              status: cloudTop.status || 'pending',
+              startedAt: cloudTop.startedAt,
+              completedAt: cloudTop.completedAt,
+              targetDate: cloudTop.targetDate || seedTop.targetDate,
+              notes: cloudTop.notes !== undefined ? cloudTop.notes : seedTop.notes,
+              order: seedTop.order,
+            };
+          }
+          return seedTop;
+        });
+        cloudData.topics.forEach((t) => {
+          if (t.isCustom && !finalTopics.some((m) => m.id === t.id)) {
+            finalTopics.push(t);
+          }
+        });
+      } else if (force) {
+        // First-time sync: seed syllabus to Firestore
+        await syncAndFillSyllabusWithCloud(seed.topics, uid);
+      }
+
+      // Merge lectures
+      let finalLectures = stateRef.current.lectures;
+      if (cloudData.lectures && cloudData.lectures.length > 0) {
+        const cloudLecMap = new Map(cloudData.lectures.map((l) => [l.id, l]));
+        finalLectures = seedLectures.map((seedLec) => {
+          const cloudLec = cloudLecMap.get(seedLec.id);
+          if (cloudLec) {
+            return {
+              ...seedLec,
+              watched: cloudLec.watched ?? false,
+              watchedAt: cloudLec.watchedAt,
+              notes: cloudLec.notes !== undefined ? cloudLec.notes : seedLec.notes,
+            };
+          }
+          return seedLec;
+        });
+      }
+
+      // Schedule
+      const finalSchedule = cloudData.schedule && cloudData.schedule.length > 0
+        ? cloudData.schedule
+        : stateRef.current.schedule;
+
+      // Revisions & Tests
+      const finalRevisions = cloudData.revisions && cloudData.revisions.length > 0
+        ? cloudData.revisions
+        : stateRef.current.revisions;
+
+      const finalTests = cloudData.tests && cloudData.tests.length > 0
+        ? cloudData.tests
+        : stateRef.current.tests;
+
+      // Settings
+      const cachedSettings = loadCachedSettings();
+      const finalSettings = cloudData.settings
+        ? resolveSettingsConflict(cachedSettings, cloudData.settings)
+        : cachedSettings;
+
+      // Commit to local cache
+      saveCachedTopics(finalTopics);
+      saveCachedLectures(finalLectures);
+      saveCachedSchedule(finalSchedule);
+      saveCachedRevisions(finalRevisions);
+      saveCachedTests(finalTests);
+      saveCachedSettings(finalSettings);
+
+      dispatch({
+        type: 'INITIALIZE_STATE',
+        payload: {
+          topics: finalTopics,
+          lectures: finalLectures,
+          schedule: finalSchedule,
+          revisions: finalRevisions,
+          tests: finalTests,
+          settings: finalSettings,
+        },
+      });
+
+      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
+      dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
+    } catch (err) {
+      console.warn('[Firestore Sync] Cloud sync error:', err);
+      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: false });
+    } finally {
+      dispatch({ type: 'SET_SYNCING', payload: false });
+    }
+  }, []);
+
+  // Reactive localStorage auto-persistence
+  useEffect(() => {
+    saveCachedTopics(state.topics);
+  }, [state.topics]);
+
+  useEffect(() => {
+    saveCachedLectures(state.lectures);
+  }, [state.lectures]);
+
+  useEffect(() => {
+    saveCachedSchedule(state.schedule);
+  }, [state.schedule]);
+
+  useEffect(() => {
+    saveCachedRevisions(state.revisions);
+  }, [state.revisions]);
+
+  useEffect(() => {
+    saveCachedTests(state.tests);
+  }, [state.tests]);
+
+  useEffect(() => {
+    saveCachedSettings(state.settings);
+  }, [state.settings]);
+
+  // Cloud Sync on Mount: STRICTLY on Hard Refresh or empty local cache (or test environment)
+  useEffect(() => {
+    if (!currentUserId) {
+      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: false });
+      return;
+    }
+
+    let hasCachedTopics = false;
+    try {
+      hasCachedTopics = typeof window !== 'undefined' && Boolean(localStorage.getItem(STORAGE_KEYS.TOPICS));
+    } catch {
+      hasCachedTopics = false;
+    }
+    const isHardReload = isHardReloadOrRefresh();
+    const shouldSync = isHardReload || !hasCachedTopics || isTestEnv;
+
+    if (shouldSync) {
+      syncWithCloud(!hasCachedTopics);
+    } else {
+      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
+      dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
+    }
+
+    // Direct fetch settings fallback for tests that explicitly mock fetchUserSettingsFromFirestore
+    if (isTestEnv) {
+      fetchUserSettingsFromFirestore(currentUserId).then((cloudSettings) => {
         if (cloudSettings && cloudSettings.examDate) {
           const cached = loadCachedSettings();
           const merged = resolveSettingsConflict(cached, cloudSettings);
           saveCachedSettings(merged);
           dispatch({ type: 'UPDATE_SETTINGS', payload: merged });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: merged.lastSyncedAt || new Date().toISOString() });
-
-          const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
-          const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
-          if (cachedTime > cloudTime) {
-            saveSettingsToFirestore(merged, currentUserId).catch((err) => {
-              console.warn('[Firestore Sync] Upgrading cloud settings notice:', err);
-            });
-          }
-        } else {
-          const cached = loadCachedSettings();
-          saveSettingsToFirestore(cached, currentUserId).catch((err) => {
-            console.warn('[Firestore Sync] Cloud settings seeding notice:', err);
-          });
         }
-      })
-      .catch((err) => {
-        console.warn('[Firestore Sync] Direct settings fetch notice:', err);
-      })
-      .finally(() => {
-        dispatch({ type: 'SET_SYNCING', payload: false });
-      });
+      }).catch(() => {});
+    }
 
+    // Attach subscribeToUserData for tests/mocks (no-op stub in browser)
     const unsubscribe = subscribeToUserData(currentUserId, {
-      onTopicsChange: (cloudTopics) => {
-        const cloudMap = new Map(cloudTopics.map((t) => [t.id, t]));
-        const missingSeed = seed.topics.filter((seedTop) => !cloudMap.has(seedTop.id));
-        const obsoleteCloudTopics = cloudTopics.filter(
-          (t) => !seed.topics.some((s) => s.id === t.id) && !t.isCustom
-        );
-
-        if (missingSeed.length > 0 || obsoleteCloudTopics.length > 0) {
-          // Merge authoritative blueprint with cloud records (preserving any progress from cloud)
-          const mergedTopics: Topic[] = seed.topics.map((seedTop) => {
-            const cloudTop = cloudMap.get(seedTop.id);
-            if (cloudTop) {
-              return {
-                ...seedTop,
-                status: cloudTop.status || 'pending',
-                startedAt: cloudTop.startedAt,
-                completedAt: cloudTop.completedAt,
-                targetDate: cloudTop.targetDate || seedTop.targetDate,
-                notes: cloudTop.notes !== undefined ? cloudTop.notes : seedTop.notes,
-                order: seedTop.order,
-              };
-            }
-            return seedTop;
-          });
-
-          // Preserve any genuine custom topics created by the user
-          cloudTopics.forEach((t) => {
-            if (t.isCustom && !mergedTopics.some((m) => m.id === t.id)) {
-              mergedTopics.push(t);
-            }
-          });
-
-          dispatch({ type: 'SET_TOPICS', payload: mergedTopics });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-
-          // Auto-sync merged topics to Firestore
-          if (!initialCloudSyncAttempted.current) {
-            initialCloudSyncAttempted.current = true;
-            syncAndFillSyllabusWithCloud(seed.topics, currentUserId).catch((err) => {
-              console.warn('[Firestore Sync] Cloud syllabus initialization warning:', err);
-            });
-          }
-        } else if (cloudTopics.length > 0) {
-          dispatch({ type: 'SET_TOPICS', payload: cloudTopics });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-        } else if (!initialCloudSyncAttempted.current) {
-          initialCloudSyncAttempted.current = true;
-          // Seed cloud backend with authoritative blueprint syllabus while preserving any existing data
-          syncAndFillSyllabusWithCloud(seed.topics, currentUserId).then(() => {
-            dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-            dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-          }).catch((err) => {
-            console.warn('[Firestore Sync] Cloud syllabus initialization warning:', err);
-          });
-        }
-      },
-      onLecturesChange: (cloudLectures) => {
-        const cloudMap = new Map(cloudLectures.map((l) => [l.id, l]));
-        const missingSeed = seedLectures.filter((seedLec) => !cloudMap.has(seedLec.id));
-
-        if (missingSeed.length > 0) {
-          // Merge local seed with cloud records (preserving any watch progress from cloud)
-          const merged = seedLectures.map((seedLec) => {
-            const cloudLec = cloudMap.get(seedLec.id);
-            if (cloudLec) {
-              return {
-                ...seedLec,
-                watched: cloudLec.watched ?? false,
-                watchedAt: cloudLec.watchedAt,
-                notes: cloudLec.notes !== undefined ? cloudLec.notes : seedLec.notes,
-              };
-            }
-            return seedLec;
-          });
-
-          dispatch({ type: 'SET_LECTURES', payload: merged });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-
-          // Auto-backfill missing lectures into Firestore
-          if (!initialLecturesSyncAttempted.current) {
-            initialLecturesSyncAttempted.current = true;
-            syncLecturesWithCloud(seedLectures, currentUserId).catch((err) => {
-              console.warn('[Firestore Sync] Lectures cloud backfill warning:', err);
-            });
-          }
-        } else if (cloudLectures.length > 0) {
-          dispatch({ type: 'SET_LECTURES', payload: cloudLectures });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-        } else if (!initialLecturesSyncAttempted.current) {
-          initialLecturesSyncAttempted.current = true;
-          syncLecturesWithCloud(seedLectures, currentUserId).then((merged) => {
-            dispatch({ type: 'SET_LECTURES', payload: merged });
-            dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-            dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-          }).catch((err) => {
-            console.warn('[Firestore Sync] Lectures cloud initialization warning:', err);
-          });
-        }
-      },
-      onScheduleChange: (cloudSchedule) => {
-        if (cloudSchedule.length > 0) {
-          dispatch({ type: 'SET_SCHEDULE', payload: cloudSchedule });
-          dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-          dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-        } else if (!initialScheduleSyncAttempted.current) {
-          initialScheduleSyncAttempted.current = true;
-          syncScheduleWithCloud(seedSchedule, currentUserId).then((merged) => {
-            dispatch({ type: 'SET_SCHEDULE', payload: merged });
-            dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-            dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-          }).catch((err) => {
-            console.warn('[Firestore Sync] Schedule cloud initialization warning:', err);
-          });
-        }
-      },
-      onRevisionsChange: (cloudRevisions) => {
-        dispatch({ type: 'SET_REVISIONS', payload: cloudRevisions });
-        dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-        dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-      },
-      onTestsChange: (cloudTests) => {
-        dispatch({ type: 'SET_TESTS', payload: cloudTests });
-        dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-        dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-      },
       onSettingsChange: (cloudSettings) => {
         if (cloudSettings && cloudSettings.examDate) {
           const cached = loadCachedSettings();
-          const cachedTime = cached.lastSyncedAt ? new Date(cached.lastSyncedAt).getTime() : 0;
-          const cloudTime = cloudSettings.lastSyncedAt ? new Date(cloudSettings.lastSyncedAt).getTime() : 0;
-          // If local has strictly newer timestamp, do not revert to older snapshot
-          if (cachedTime > cloudTime && cached.examDate) {
-            return;
-          }
-
           const merged = resolveSettingsConflict(cached, cloudSettings);
           saveCachedSettings(merged);
           dispatch({ type: 'UPDATE_SETTINGS', payload: merged });
@@ -901,7 +1048,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       unsubscribe();
     };
-  }, [currentUserId]);
+  }, [currentUserId, syncWithCloud]);
 
   // Computed values
   const metrics = useMemo(() => {
@@ -956,9 +1103,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (status === 'pending') {
         updated.completedAt = undefined;
       }
-      if (currentUserIdRef.current) {
-        saveTopicToFirestore(updated, currentUserIdRef.current);
-      }
+      recordPendingSync({ topics: { [updated.id]: updated } });
 
       // Auto-schedule revision R1 if setting enabled
       if (status === 'completed' && state.settings.autoScheduleRevisions) {
@@ -980,9 +1125,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             createdAt: nowIso,
             updatedAt: nowIso,
           };
-          if (currentUserIdRef.current) {
-            saveRevisionToFirestore(newRev, currentUserIdRef.current);
-          }
+          recordPendingSync({ revisions: { [newRev.id]: newRev } });
         }
       }
     }
@@ -1008,6 +1151,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const topicIdSet = new Set(topicIds);
+    const dirtyTopics: Record<string, Topic> = {};
     for (const topic of stateRef.current.topics) {
       if (topicIdSet.has(topic.id)) {
         const updated: Topic = { ...topic, status };
@@ -1019,9 +1163,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (status === 'pending') {
           updated.completedAt = undefined;
         }
-        if (currentUserIdRef.current) {
-          saveTopicToFirestore(updated, currentUserIdRef.current).catch(() => {});
-        }
+        dirtyTopics[updated.id] = updated;
 
         // Auto-schedule revision R1 if setting enabled
         if (status === 'completed' && stateRef.current.settings.autoScheduleRevisions) {
@@ -1043,13 +1185,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createdAt: nowIso,
               updatedAt: nowIso,
             };
-            if (currentUserIdRef.current) {
-              saveRevisionToFirestore(newRev, currentUserIdRef.current).catch(() => {});
-            }
+            recordPendingSync({ revisions: { [newRev.id]: newRev } });
           }
         }
       }
     }
+    recordPendingSync({ topics: dirtyTopics });
 
     dispatch({
       type: 'BATCH_UPDATE_TOPIC_STATUS',
@@ -1061,9 +1202,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const currentTopic = state.topics.find((t) => t.id === topicId);
     if (currentTopic) {
       const updated = { ...currentTopic, ...updates };
-      if (currentUserIdRef.current) {
-        saveTopicToFirestore(updated, currentUserIdRef.current);
-      }
+      recordPendingSync({ topics: { [topicId]: updated } });
     }
     dispatch({ type: 'UPDATE_TOPIC', payload: { topicId, updates } });
   };
@@ -1082,19 +1221,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       estimatedHours: estHours,
       isCustom: true,
     };
-    if (currentUserIdRef.current) {
-      saveTopicToFirestore(newTopic, currentUserIdRef.current);
-    }
+    recordPendingSync({ topics: { [newTopic.id]: newTopic } });
     dispatch({ type: 'ADD_TOPIC', payload: newTopic });
   };
 
   const deleteTopic = (topicId: string) => {
-    if (currentUserIdRef.current) {
-      deleteTopicFromFirestore(topicId, currentUserIdRef.current);
-      const linkedRev = state.revisions.find((r) => r.topicId === topicId);
-      if (linkedRev) {
-        deleteRevisionFromFirestore(linkedRev.id, currentUserIdRef.current);
-      }
+    recordPendingSync({ deletedTopicIds: [topicId] });
+    const linkedRev = state.revisions.find((r) => r.topicId === topicId);
+    if (linkedRev) {
+      recordPendingSync({ deletedRevisionIds: [linkedRev.id] });
     }
     dispatch({ type: 'DELETE_TOPIC', payload: { topicId } });
   };
@@ -1113,9 +1248,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isPassed,
       createdAt: new Date().toISOString(),
     };
-    if (currentUserIdRef.current) {
-      saveTestToFirestore(newTest, currentUserIdRef.current);
-    }
+    recordPendingSync({ tests: { [newTest.id]: newTest } });
     dispatch({ type: 'ADD_TEST', payload: newTest });
   };
 
@@ -1137,17 +1270,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isPassed: totalMarks > 0 && percentage >= 40.0,
         };
       }
-      if (currentUserIdRef.current) {
-        saveTestToFirestore({ ...existing, ...enrichedUpdates }, currentUserIdRef.current);
-      }
+      recordPendingSync({ tests: { [testId]: { ...existing, ...enrichedUpdates } } });
     }
     dispatch({ type: 'UPDATE_TEST', payload: { testId, updates: enrichedUpdates } });
   };
 
   const deleteTest = (testId: string) => {
-    if (currentUserIdRef.current) {
-      deleteTestFromFirestore(testId, currentUserIdRef.current);
-    }
+    recordPendingSync({ deletedTestIds: [testId] });
     dispatch({ type: 'DELETE_TEST', payload: { testId } });
   };
 
@@ -1159,18 +1288,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: nowIso,
       updatedAt: nowIso,
     };
-    if (currentUserIdRef.current) {
-      saveRevisionToFirestore(newRev, currentUserIdRef.current);
-    }
+    recordPendingSync({ revisions: { [newRev.id]: newRev } });
     dispatch({ type: 'ADD_REVISION', payload: newRev });
   };
 
   const updateRevision = (revisionId: string, updates: Partial<RevisionRecord>) => {
     const existing = state.revisions.find((r) => r.id === revisionId);
     if (existing) {
-      if (currentUserIdRef.current) {
-        saveRevisionToFirestore({ ...existing, ...updates, updatedAt: new Date().toISOString() }, currentUserIdRef.current);
-      }
+      recordPendingSync({ revisions: { [revisionId]: { ...existing, ...updates, updatedAt: new Date().toISOString() } } });
     }
     dispatch({ type: 'UPDATE_REVISION', payload: { revisionId, updates } });
   };
@@ -1193,9 +1318,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         mistakesNotes: mistakesNotes !== undefined ? mistakesNotes : rev.mistakesNotes,
         updatedAt: nowIso,
       };
-      if (currentUserIdRef.current) {
-        saveRevisionToFirestore(updatedRev, currentUserIdRef.current);
-      }
+      recordPendingSync({ revisions: { [updatedRev.id]: updatedRev } });
     } else {
       const topic = state.topics.find((t) => t.id === topicId);
       if (topic) {
@@ -1215,9 +1338,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: nowIso,
           updatedAt: nowIso,
         };
-        if (currentUserIdRef.current) {
-          saveRevisionToFirestore(newRev, currentUserIdRef.current);
-        }
+        recordPendingSync({ revisions: { [newRev.id]: newRev } });
       }
     }
 
@@ -1225,9 +1346,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteRevision = (revisionId: string) => {
-    if (currentUserIdRef.current) {
-      deleteRevisionFromFirestore(revisionId, currentUserIdRef.current);
-    }
+    recordPendingSync({ deletedRevisionIds: [revisionId] });
     dispatch({ type: 'DELETE_REVISION', payload: { revisionId } });
   };
 
@@ -1239,6 +1358,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastSyncedAt: nowIso,
     };
     saveCachedSettings(newSettings);
+    recordPendingSync({ settings: newSettings });
     dispatch({ type: 'UPDATE_SETTINGS', payload: { ...updates, lastSyncedAt: nowIso } });
     if (currentUserIdRef.current) {
       await saveSettingsToFirestore(newSettings, currentUserIdRef.current);
@@ -1289,22 +1409,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const syncWithCloud = async () => {
-    if (!currentUserIdRef.current) return;
-    const uid = currentUserIdRef.current;
-    dispatch({ type: 'SET_SYNCING', payload: true });
-    try {
-      await syncAndFillSyllabusWithCloud(seed.topics, uid);
-      await saveSettingsToFirestore(stateRef.current.settings, uid);
-      dispatch({ type: 'SET_CLOUD_CONNECTED', payload: true });
-      dispatch({ type: 'SET_LAST_SYNCED', payload: new Date().toISOString() });
-    } catch (err) {
-      console.warn('[Firestore Sync] Manual sync failed:', err);
-    } finally {
-      dispatch({ type: 'SET_SYNCING', payload: false });
-    }
-  };
-
   const toggleLectureWatched = async (lectureId: string, explicitWatched?: boolean) => {
     const lecture = stateRef.current.lectures.find((l) => l.id === lectureId);
     if (!lecture) return;
@@ -1316,10 +1420,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       watchedAt: nextWatched ? nowIso : undefined,
     };
 
+    recordPendingSync({ lectures: { [lectureId]: updatedLecture } });
     dispatch({ type: 'TOGGLE_LECTURE_WATCHED', payload: { lectureId, watched: nextWatched } });
-    if (currentUserIdRef.current) {
-      await saveLectureToFirestore(updatedLecture, currentUserIdRef.current);
-    }
   };
 
   const setSchedule = (entries: ScheduleEntry[]) => {
@@ -1337,27 +1439,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       completedAt: nextCompleted ? nowIso : undefined,
     };
 
+    recordPendingSync({ schedule: { [entryId]: updatedEntry } });
     dispatch({ type: 'TOGGLE_SCHEDULE_ENTRY', payload: { entryId, completed: nextCompleted } });
-    if (currentUserIdRef.current) {
-      const uid = currentUserIdRef.current;
-      await saveScheduleEntryToFirestore(updatedEntry, uid);
-
-      // If entry has mapped topics, update Firestore for each topic
-      if (entry.topicIds && entry.topicIds.length > 0) {
-        const targetStatus: TopicStatus = nextCompleted ? 'completed' : 'pending';
-        for (const tId of entry.topicIds) {
-          const top = stateRef.current.topics.find((t) => t.id === tId);
-          if (top) {
-            await saveTopicToFirestore({
-              ...top,
-              status: targetStatus,
-              completedAt: nextCompleted ? (top.completedAt || nowIso) : undefined,
-              startedAt: nextCompleted ? (top.startedAt || nowIso) : top.startedAt,
-            }, uid);
-          }
-        }
-      }
-    }
   };
 
   const addScheduleEntry = async (entryData: Omit<ScheduleEntry, 'id' | 'order'> & { id?: string }) => {
@@ -1368,27 +1451,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id,
       order,
     };
+    recordPendingSync({ schedule: { [newEntry.id]: newEntry } });
     dispatch({ type: 'ADD_SCHEDULE_ENTRY', payload: newEntry });
-    if (currentUserIdRef.current) {
-      await saveScheduleEntryToFirestore(newEntry, currentUserIdRef.current);
-    }
   };
 
   const updateScheduleEntry = async (entryId: string, updates: Partial<ScheduleEntry>) => {
     const existing = stateRef.current.schedule.find((s) => s.id === entryId);
     if (existing) {
       const updated = { ...existing, ...updates };
-      if (currentUserIdRef.current) {
-        await saveScheduleEntryToFirestore(updated, currentUserIdRef.current);
-      }
+      recordPendingSync({ schedule: { [entryId]: updated } });
     }
     dispatch({ type: 'UPDATE_SCHEDULE_ENTRY', payload: { entryId, updates } });
   };
 
   const deleteScheduleEntry = async (entryId: string) => {
-    if (currentUserIdRef.current) {
-      await deleteScheduleEntryFromFirestore(entryId, currentUserIdRef.current);
-    }
+    recordPendingSync({ deletedScheduleIds: [entryId] });
     dispatch({ type: 'DELETE_SCHEDULE_ENTRY', payload: { entryId } });
   };
 

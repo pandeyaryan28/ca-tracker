@@ -12,8 +12,6 @@ import {
   deleteDoc,
   getDocs,
   writeBatch,
-  onSnapshot,
-  Unsubscribe,
 } from 'firebase/firestore';
 import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
 import { Topic, RevisionRecord, TestRecord, UserSettings, Lecture, ScheduleEntry } from '@/types';
@@ -71,6 +69,26 @@ export function sanitizeForFirestore<T>(data: T): Record<string, unknown> {
  */
 export const getUserTopicsCollection = (userId: string = SINGLE_USER_ID) =>
   collection(db, 'users', userId, 'topics');
+
+export const getUserCATopicsCollection = (userId: string = SINGLE_USER_ID) =>
+  collection(db, 'users', userId, 'caTopics');
+
+/**
+ * Detects whether the current navigation event is a page refresh or hard reload.
+ */
+export function isHardReloadOrRefresh(): boolean {
+  if (typeof window === 'undefined' || !window.performance) return false;
+  try {
+    const navEntries = window.performance.getEntriesByType('navigation');
+    if (navEntries && navEntries.length > 0) {
+      const nav = navEntries[0] as PerformanceNavigationTiming;
+      return nav.type === 'reload';
+    }
+    return (window.performance as any).navigation?.type === 1;
+  } catch {
+    return false;
+  }
+}
 
 export const getUserTestsCollection = (userId: string = SINGLE_USER_ID) =>
   collection(db, 'users', userId, 'tests');
@@ -524,6 +542,163 @@ export async function batchUploadAllData(
   }
 }
 
+export interface CAPendingSync {
+  topics?: Record<string, Topic>;
+  deletedTopicIds?: string[];
+  lectures?: Record<string, Lecture>;
+  schedule?: Record<string, ScheduleEntry>;
+  deletedScheduleIds?: string[];
+  revisions?: Record<string, RevisionRecord>;
+  deletedRevisionIds?: string[];
+  tests?: Record<string, TestRecord>;
+  deletedTestIds?: string[];
+  settings?: UserSettings;
+}
+
+/**
+ * Atomic one-time fetch of all CA Tracker datasets from Firestore.
+ * Does NOT open continuous listeners; charges 1 read per document once.
+ */
+export async function fetchAllCAUserDataFromFirestore(userId: string = SINGLE_USER_ID): Promise<{
+  topics: Topic[];
+  lectures: Lecture[];
+  schedule: ScheduleEntry[];
+  revisions: RevisionRecord[];
+  tests: TestRecord[];
+  settings: UserSettings | null;
+}> {
+  try {
+    const [settingsSnap, topicsSnap, caTopicsSnap, lecSnap, schedSnap, revSnap, testsSnap] = await Promise.all([
+      getDoc(getUserSettingsDoc(userId)).catch(() => null),
+      getDocs(getUserTopicsCollection(userId)).catch(() => null),
+      getDocs(collection(db, 'users', userId, 'caTopics')).catch(() => null),
+      getDocs(getUserLecturesCollection(userId)).catch(() => null),
+      getDocs(getUserScheduleCollection(userId)).catch(() => null),
+      getDocs(getUserRevisionsCollection(userId)).catch(() => null),
+      getDocs(getUserTestsCollection(userId)).catch(() => null),
+    ]);
+
+    const settings = settingsSnap?.exists() ? (settingsSnap.data() as UserSettings) : null;
+
+    let topics: Topic[] = [];
+    if (topicsSnap && !topicsSnap.empty) {
+      topics = topicsSnap.docs.map((d) => d.data() as Topic);
+    } else if (caTopicsSnap && !caTopicsSnap.empty) {
+      topics = caTopicsSnap.docs.map((d) => d.data() as Topic);
+    }
+    topics.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    const lectures: Lecture[] = lecSnap && !lecSnap.empty ? lecSnap.docs.map((d) => d.data() as Lecture) : [];
+    lectures.sort((a, b) => {
+      const subA = String(a.subjectId || '');
+      const subB = String(b.subjectId || '');
+      if (subA !== subB) return subA.localeCompare(subB);
+      return (a.order || 0) - (b.order || 0);
+    });
+
+    const schedule: ScheduleEntry[] = schedSnap && !schedSnap.empty ? schedSnap.docs.map((d) => d.data() as ScheduleEntry) : [];
+    schedule.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      return (a.order || 0) - (b.order || 0);
+    });
+
+    const revisions: RevisionRecord[] = revSnap && !revSnap.empty ? revSnap.docs.map((d) => d.data() as RevisionRecord) : [];
+    const tests: TestRecord[] = testsSnap && !testsSnap.empty ? testsSnap.docs.map((d) => d.data() as TestRecord) : [];
+    tests.sort((a, b) => new Date(b.createdAt || b.dateAttempted).getTime() - new Date(a.createdAt || a.dateAttempted).getTime());
+
+    return { topics, lectures, schedule, revisions, tests, settings };
+  } catch (err) {
+    console.warn('[Firestore Sync] fetchAllCAUserDataFromFirestore error:', err);
+    return { topics: [], lectures: [], schedule: [], revisions: [], tests: [], settings: null };
+  }
+}
+
+/**
+ * Pushes only dirty / pending local changes to Firestore in a single batch write.
+ */
+export async function flushPendingCAChangesToFirestore(
+  userId: string = SINGLE_USER_ID,
+  pending: CAPendingSync
+): Promise<void> {
+  const hasTopics = pending.topics && Object.keys(pending.topics).length > 0;
+  const hasDeletedTopics = pending.deletedTopicIds && pending.deletedTopicIds.length > 0;
+  const hasLectures = pending.lectures && Object.keys(pending.lectures).length > 0;
+  const hasSchedule = pending.schedule && Object.keys(pending.schedule).length > 0;
+  const hasDeletedSchedule = pending.deletedScheduleIds && pending.deletedScheduleIds.length > 0;
+  const hasRevisions = pending.revisions && Object.keys(pending.revisions).length > 0;
+  const hasDeletedRevisions = pending.deletedRevisionIds && pending.deletedRevisionIds.length > 0;
+  const hasTests = pending.tests && Object.keys(pending.tests).length > 0;
+  const hasDeletedTests = pending.deletedTestIds && pending.deletedTestIds.length > 0;
+  const hasSettings = Boolean(pending.settings);
+
+  if (
+    !hasTopics &&
+    !hasDeletedTopics &&
+    !hasLectures &&
+    !hasSchedule &&
+    !hasDeletedSchedule &&
+    !hasRevisions &&
+    !hasDeletedRevisions &&
+    !hasTests &&
+    !hasDeletedTests &&
+    !hasSettings
+  ) {
+    return;
+  }
+
+  const batch = writeBatch(db);
+  if (pending.settings) {
+    batch.set(getUserSettingsDoc(userId), sanitizeForFirestore(pending.settings), { merge: true });
+  }
+  if (hasTopics) {
+    Object.values(pending.topics!).forEach((topic) => {
+      batch.set(doc(db, 'users', userId, 'topics', topic.id), sanitizeForFirestore(topic), { merge: true });
+    });
+  }
+  if (hasDeletedTopics) {
+    pending.deletedTopicIds!.forEach((id) => {
+      batch.delete(doc(db, 'users', userId, 'topics', id));
+    });
+  }
+  if (hasLectures) {
+    Object.values(pending.lectures!).forEach((lec) => {
+      batch.set(doc(db, 'users', userId, 'lectures', lec.id), sanitizeForFirestore(lec), { merge: true });
+    });
+  }
+  if (hasSchedule) {
+    Object.values(pending.schedule!).forEach((entry) => {
+      batch.set(doc(db, 'users', userId, 'schedule', entry.id), sanitizeForFirestore(entry), { merge: true });
+    });
+  }
+  if (hasDeletedSchedule) {
+    pending.deletedScheduleIds!.forEach((id) => {
+      batch.delete(doc(db, 'users', userId, 'schedule', id));
+    });
+  }
+  if (hasRevisions) {
+    Object.values(pending.revisions!).forEach((rev) => {
+      batch.set(doc(db, 'users', userId, 'revisions', rev.id), sanitizeForFirestore(rev), { merge: true });
+    });
+  }
+  if (hasDeletedRevisions) {
+    pending.deletedRevisionIds!.forEach((id) => {
+      batch.delete(doc(db, 'users', userId, 'revisions', id));
+    });
+  }
+  if (hasTests) {
+    Object.values(pending.tests!).forEach((test) => {
+      batch.set(doc(db, 'users', userId, 'tests', test.id), sanitizeForFirestore(test), { merge: true });
+    });
+  }
+  if (hasDeletedTests) {
+    pending.deletedTestIds!.forEach((id) => {
+      batch.delete(doc(db, 'users', userId, 'tests', id));
+    });
+  }
+
+  await batch.commit();
+}
+
 export interface UserDataSubscriptions {
   onTopicsChange?: (topics: Topic[]) => void;
   onRevisionsChange?: (revisions: RevisionRecord[]) => void;
@@ -534,144 +709,13 @@ export interface UserDataSubscriptions {
   onError?: (error: Error) => void;
 }
 
+/**
+ * Continuous listeners are intentionally disabled in CA Tracker to eliminate background read/write costs.
+ * CA Tracker relies on localStorage caching and syncs only on hard refresh or manual trigger.
+ */
 export function subscribeToUserData(
-  userId: string = SINGLE_USER_ID,
-  subscriptions: UserDataSubscriptions
+  _userId: string = SINGLE_USER_ID,
+  _subscriptions: UserDataSubscriptions
 ): () => void {
-  const unsubscribes: Unsubscribe[] = [];
-
-  try {
-    // Topics listener
-    if (subscriptions.onTopicsChange) {
-      const unsubTopics = onSnapshot(
-        getUserTopicsCollection(userId),
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const topics = snapshot.docs.map((d) => d.data() as Topic);
-            topics.sort((a, b) => (a.order || 0) - (b.order || 0));
-            subscriptions.onTopicsChange?.(topics);
-          } else {
-            subscriptions.onTopicsChange?.([]);
-          }
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Topics subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubTopics);
-    }
-
-    // Lectures listener
-    if (subscriptions.onLecturesChange) {
-      const unsubLectures = onSnapshot(
-        getUserLecturesCollection(userId),
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const lectures = snapshot.docs.map((d) => d.data() as Lecture);
-            lectures.sort((a, b) => {
-              const subA = String(a.subjectId || '');
-              const subB = String(b.subjectId || '');
-              if (subA !== subB) return subA.localeCompare(subB);
-              return (a.order || 0) - (b.order || 0);
-            });
-            subscriptions.onLecturesChange?.(lectures);
-          } else {
-            subscriptions.onLecturesChange?.([]);
-          }
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Lectures subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubLectures);
-    }
-
-    // Schedule listener
-    if (subscriptions.onScheduleChange) {
-      const unsubSchedule = onSnapshot(
-        getUserScheduleCollection(userId),
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const schedule = snapshot.docs.map((d) => d.data() as ScheduleEntry);
-            schedule.sort((a, b) => {
-              if (a.date !== b.date) return a.date.localeCompare(b.date);
-              return (a.order || 0) - (b.order || 0);
-            });
-            subscriptions.onScheduleChange?.(schedule);
-          } else {
-            subscriptions.onScheduleChange?.([]);
-          }
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Schedule subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubSchedule);
-    }
-
-    // Revisions listener
-    if (subscriptions.onRevisionsChange) {
-      const unsubRevs = onSnapshot(
-        getUserRevisionsCollection(userId),
-        (snapshot) => {
-          const revisions = snapshot.docs.map((d) => d.data() as RevisionRecord);
-          subscriptions.onRevisionsChange?.(revisions);
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Revisions subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubRevs);
-    }
-
-    // Tests listener
-    if (subscriptions.onTestsChange) {
-      const unsubTests = onSnapshot(
-        getUserTestsCollection(userId),
-        (snapshot) => {
-          const tests = snapshot.docs.map((d) => d.data() as TestRecord);
-          tests.sort((a, b) => new Date(b.createdAt || b.dateAttempted).getTime() - new Date(a.createdAt || a.dateAttempted).getTime());
-          subscriptions.onTestsChange?.(tests);
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Tests subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubTests);
-    }
-
-    // Settings listener
-    if (subscriptions.onSettingsChange) {
-      const unsubSettings = onSnapshot(
-        getUserSettingsDoc(userId),
-        (docSnap) => {
-          if (docSnap.exists()) {
-            subscriptions.onSettingsChange?.(docSnap.data() as UserSettings);
-          }
-        },
-        (err) => {
-          console.warn('[Firestore Sync] Settings subscription error:', err);
-          subscriptions.onError?.(err);
-        }
-      );
-      unsubscribes.push(unsubSettings);
-    }
-  } catch (err) {
-    console.warn('[Firestore Sync] Failed to setup subscriptions:', err);
-  }
-
-  return () => {
-    unsubscribes.forEach((unsub) => {
-      try {
-        unsub();
-      } catch {
-        // Ignore unmount cleanup errors
-      }
-    });
-  };
+  return () => {};
 }

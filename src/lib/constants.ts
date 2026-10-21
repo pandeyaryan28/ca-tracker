@@ -141,6 +141,7 @@ export const NAV_ITEMS: NavigationItem[] = [
 
 export const STORAGE_KEYS = {
   TOPICS: 'ca_tracker_topics',
+  LECTURES: 'ca_tracker_lectures',
   SCHEDULE: 'ca_tracker_schedule',
   REVISIONS: 'ca_tracker_revisions',
   TESTS: 'ca_tracker_tests',
@@ -150,4 +151,6 @@ export const STORAGE_KEYS = {
   STREAK: 'ca_tracker_streak',
   EXERCISE_ATTEMPTS: 'ca_tracker_exercise_attempts',
   EXERCISE_ACTIVE_SESSION: 'ca_tracker_active_exercise_session',
+  PENDING_SYNC: 'ca_tracker_pending_sync',
+  LAST_HARD_REFRESH: 'ca_tracker_last_hard_refresh',
 };
