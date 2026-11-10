@@ -24,6 +24,7 @@ import { calculateAttemptMetrics, saveExerciseAttempt } from '@/lib/exerciseStor
 import { QuestionPalette } from './QuestionPalette';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
+import { MathText } from '@/components/common/MathText';
 import { cn } from '@/lib/utils';
 
 interface ExerciseSessionViewProps {
@@ -379,12 +380,17 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             </div>
 
             {/* Question Header & Mark for Review Button */}
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-black/[0.04] dark:border-white/[0.06]">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
-                  Question {currentIndex + 1}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-black/[0.04] dark:border-white/[0.06]">
+              <div className="flex flex-wrap items-center gap-2">
+                {currentQ.exerciseName && (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-500/20 shadow-xs">
+                    {currentQ.exerciseName} • Q{currentQ.exerciseQuestionNumber ?? (currentIndex + 1)}
+                  </span>
+                )}
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs">
+                  {currentQ.exerciseName ? `Ch Q${currentIndex + 1} of ${totalQuestions}` : `Question ${currentIndex + 1} of ${totalQuestions}`}
                 </span>
-                {currentQ.unitTitle && (
+                {currentQ.unitTitle && !currentQ.exerciseName && (
                   <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline">
                     • {currentQ.unitTitle}
                   </span>
@@ -412,13 +418,13 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             {/* Context Box (Tables, case figures, or problem prompt) */}
             {currentQ.context && currentQ.context.trim() && !/test your knowledge/i.test(currentQ.context) && !/multiple choice/i.test(currentQ.context) && (
               <div className="mb-5 p-4 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
-                {currentQ.context}
+                <MathText text={currentQ.context} block />
               </div>
             )}
 
             {/* Question Text Prompt */}
             <div className="text-base sm:text-lg font-medium text-zinc-900 dark:text-zinc-100 leading-relaxed mb-6">
-              {currentQ.questionText}
+              <MathText text={currentQ.questionText} />
             </div>
 
             {/* Options List with Enhanced Interactive Touch Targets */}
@@ -452,7 +458,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                       >
                         {option.key}
                       </span>
-                      <span className="flex-1 mt-0.5">{option.text}</span>
+                      <MathText text={option.text} className="flex-1 mt-0.5" />
                     </div>
 
                     {/* Keyboard Shortcut Hint & Selection Checkmark */}
@@ -499,10 +505,10 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 {isPracticeAnswerVisible && (
                   <div
                     className={cn(
-                      'p-4 rounded-md border text-xs leading-relaxed transition-all duration-200',
+                      'p-4 rounded-2xl border text-xs leading-relaxed transition-all duration-200 backdrop-blur-xl',
                       currentSelectedOption?.toLowerCase() === currentQ.correctOption.toLowerCase()
-                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100'
-                        : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-100'
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/80 text-emerald-900 dark:text-emerald-100'
+                        : 'bg-rose-50/80 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800/80 text-rose-900 dark:text-rose-100'
                     )}
                   >
                     <div className="flex items-center gap-2 font-bold mb-1.5 text-sm">
@@ -522,7 +528,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                       <strong className="block text-zinc-900 dark:text-zinc-100 mb-1">
                         Conceptual Explanation:
                       </strong>
-                      {currentQ.explanation}
+                      <MathText text={currentQ.explanation} />
                     </div>
                   </div>
                 )}

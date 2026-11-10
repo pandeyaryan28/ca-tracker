@@ -473,6 +473,8 @@ export interface ExerciseQuestion {
   chapterId: string; // e.g. "eco-ch-01"
   chapterTitle: string;
   questionNumber: number; // 1 to N
+  exerciseName?: string | null; // e.g. "Exercise 1(B)" or "Additional Question Bank"
+  exerciseQuestionNumber?: number | null; // 1 to N within the specific unit/exercise
   unitNumberInChapter?: number | null;
   unitTitle?: string | null;
   questionText: string;

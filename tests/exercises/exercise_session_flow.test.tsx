@@ -393,5 +393,95 @@ describe('Exercise Session Flow and UI Interactions', () => {
     );
     expect(screen.queryByText('Pending')).not.toBeInTheDocument();
   });
+
+  it('renders dual indexing badges and KaTeX mathematical formulas in ExerciseSessionView and CrossVerificationReview', () => {
+    const mathQuestions: ExerciseQuestion[] = [
+      {
+        id: 'qa-ch01-u1-q001',
+        chapterNumber: 1,
+        chapterId: 'math-ch-01',
+        chapterTitle: 'Ratio and Proportion, Indices, Logarithms',
+        unitNumberInChapter: 1,
+        unitTitle: 'Ratio',
+        exerciseName: 'Exercise 1(A)',
+        exerciseQuestionNumber: 1,
+        questionNumber: 1,
+        questionText: 'The inverse ratio of $11 : 15$ is:',
+        options: [
+          { key: 'a', text: '$15 : 11$' },
+          { key: 'b', text: '$\\sqrt{11} : \\sqrt{15}$' },
+          { key: 'c', text: '$121 : 225$' },
+          { key: 'd', text: 'None of these' },
+        ],
+        correctOption: 'a',
+        explanation: 'Inverse ratio of $a : b$ is $b : a$. Hence for $11 : 15$, it is $15 : 11$.',
+      },
+    ];
+
+    const { unmount } = render(
+      <ExerciseSessionView
+        chapterNumber={1}
+        chapterId="math-ch-01"
+        chapterTitle="Ratio and Proportion, Indices, Logarithms"
+        mode="practice"
+        questions={mathQuestions}
+        onComplete={vi.fn()}
+        onExit={vi.fn()}
+      />
+    );
+
+    // Verify dual indexing badge in header
+    expect(screen.getByText('Exercise 1(A) • Q1')).toBeInTheDocument();
+    expect(screen.getByText('Ch Q1 of 1')).toBeInTheDocument();
+
+    // Verify KaTeX rendered math elements exist
+    const mathElements = document.querySelectorAll('.katex');
+    expect(mathElements.length).toBeGreaterThan(0);
+
+    // Select option (a)
+    fireEvent.click(screen.getByText('a'));
+
+    // Reveal explanation in practice mode
+    const checkBtn = screen.getByText(/Check Answer & Explanation/i);
+    fireEvent.click(checkBtn);
+    expect(screen.getByText(/Conceptual Explanation:/i)).toBeInTheDocument();
+
+    unmount();
+
+    // Test in CrossVerificationReview
+    const mathAttempt: ExerciseAttempt = {
+      id: 'math-attempt-1',
+      chapterNumber: 1,
+      chapterId: 'math-ch-01',
+      chapterTitle: 'Ratio and Proportion, Indices, Logarithms',
+      mode: 'practice',
+      startedAt: '2026-10-14T06:00:00Z',
+      completedAt: '2026-10-14T06:01:00Z',
+      timeSpentSeconds: 60,
+      selectedAnswers: { 'qa-ch01-u1-q001': 'a' },
+      score: 1,
+      scaledScore: 1,
+      totalQuestions: 1,
+      attemptedCount: 1,
+      correctCount: 1,
+      incorrectCount: 0,
+      unattemptedCount: 0,
+      accuracyPercentage: 100,
+    };
+
+    render(
+      <DataProvider>
+        <CrossVerificationReview
+          attempt={mathAttempt}
+          questions={mathQuestions}
+          onRetake={vi.fn()}
+          onBackToHub={vi.fn()}
+        />
+      </DataProvider>
+    );
+
+    expect(screen.getByText('Exercise 1(A) • Q1')).toBeInTheDocument();
+    expect(document.querySelectorAll('.katex').length).toBeGreaterThan(0);
+  });
 });
 

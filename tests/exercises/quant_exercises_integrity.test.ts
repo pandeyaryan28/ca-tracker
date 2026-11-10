@@ -194,4 +194,38 @@ describe('Quantitative Aptitude (Paper 3) Exercises Dataset Integrity', () => {
     const bestEco = getBestAttempt(1, null, 'paper4');
     expect(bestEco).toBeUndefined();
   });
+
+  it('guarantees zero fallback options and zero running header leaks across all 1,930 questions', () => {
+    let fallbackCount = 0;
+    let headerLeakCount = 0;
+
+    quantExercises.chapters.forEach((ch) => {
+      ch.questions.forEach((q) => {
+        const optionTexts = q.options.map((o) => o.text);
+        if (
+          optionTexts.includes('None of the above') &&
+          optionTexts.includes('Cannot be determined')
+        ) {
+          fallbackCount++;
+        }
+
+        // Header leak check
+        if (
+          /THE INSTITUTE OF CHARTERED|FOUNDATION EXAMINATION|RATIO AND PROPORTION,\s*INDICES|EQUATIONS\s*\d|BUSINESS MATHEMATICS/i.test(
+            q.questionText
+          )
+        ) {
+          headerLeakCount++;
+        }
+
+        // Dual numbering verification
+        expect(q.exerciseName).toBeDefined();
+        expect(typeof q.exerciseName).toBe('string');
+        expect(q.exerciseQuestionNumber).toBeGreaterThan(0);
+      });
+    });
+
+    expect(fallbackCount).toBe(0);
+    expect(headerLeakCount).toBe(0);
+  });
 });

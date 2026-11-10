@@ -22,6 +22,7 @@ import { useData } from '@/context/DataContext';
 import { QuestionPalette } from './QuestionPalette';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
+import { MathText } from '@/components/common/MathText';
 import { cn } from '@/lib/utils';
 
 interface CrossVerificationReviewProps {
@@ -504,11 +505,16 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                 >
                   {/* Question Header Bar */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800/80">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold px-3 py-1 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm">
-                        Question {originalIndex + 1}
+                        {q.exerciseName && q.exerciseQuestionNumber
+                          ? `${q.exerciseName} • Q${q.exerciseQuestionNumber}`
+                          : `Question ${originalIndex + 1}`}
                       </span>
-                      {q.unitTitle && (
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono hidden sm:inline">
+                        (Q{originalIndex + 1} of {questions.length})
+                      </span>
+                      {q.unitTitle && !q.exerciseName && (
                         <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline">
                           • {q.unitTitle}
                         </span>
@@ -554,14 +560,14 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
 
                   {/* Context Data Table if present */}
                   {q.context && q.context.trim() && !/test your knowledge/i.test(q.context) && !/multiple choice/i.test(q.context) && (
-                    <div className="mb-4 p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/70 dark:bg-zinc-800/50 font-mono text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed overflow-x-auto">
-                      {q.context}
+                    <div className="mb-4 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/70 dark:bg-zinc-800/50 text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed overflow-x-auto">
+                      <MathText text={q.context} block />
                     </div>
                   )}
 
                   {/* Question Prompt */}
                   <div className="text-base font-medium text-zinc-900 dark:text-zinc-100 mb-5 leading-relaxed">
-                    {q.questionText}
+                    <MathText text={q.questionText} />
                   </div>
 
                   {/* Options List with High-Contrast Color Coding & Squircle Geometry */}
@@ -588,19 +594,21 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                         <div
                           key={option.key}
                           className={cn(
-                            'flex items-start gap-3 p-3.5 rounded-xl border text-sm leading-snug transition-all',
+                            'flex items-start gap-3 p-3.5 rounded-2xl border text-sm leading-snug transition-all',
                             optionStyle
                           )}
                         >
                           <span
                             className={cn(
-                              'flex items-center justify-center w-6 h-6 rounded-lg text-xs uppercase shrink-0',
+                              'flex items-center justify-center w-6 h-6 rounded-xl text-xs uppercase shrink-0',
                               keyStyle
                             )}
                           >
                             {option.key}
                           </span>
-                          <span className="flex-1 mt-0.5">{option.text}</span>
+                          <span className="flex-1 mt-0.5">
+                            <MathText text={option.text} />
+                          </span>
 
                           {/* Indicators on option row */}
                           {isOptionCorrect && (
@@ -621,7 +629,7 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   </div>
 
                   {/* Summary Comparison Line */}
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800/60 text-xs mb-4">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 p-3.5 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800/60 text-xs mb-4">
                     <div className="flex items-center gap-1.5">
                       <span className="text-zinc-500 dark:text-zinc-400">Your Answer:</span>
                       {userAnswer ? (
@@ -658,14 +666,14 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   </div>
 
                   {/* Stylized Conceptual Explanation Callout Box */}
-                  <div className="p-4.5 rounded-xl border border-blue-200/40 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20">
+                  <div className="p-4.5 rounded-2xl border border-blue-200/40 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-2">
                       <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>ICAI Conceptual Explanation & Reasoning</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-normal">
-                      {q.explanation}
-                    </p>
+                    <div className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-normal">
+                      <MathText text={q.explanation} />
+                    </div>
                   </div>
                 </Card>
               );

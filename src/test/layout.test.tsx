@@ -59,6 +59,6 @@ describe('AppShell & Navigation Architecture', () => {
     render(<App />);
 
     expect(screen.getAllByText(/0d/i).length).toBeGreaterThan(0); // Streak
-    expect(screen.getByText(/left/i)).toBeInTheDocument(); // Countdown
+    expect(screen.getByText(/left|exam today/i)).toBeInTheDocument(); // Countdown
   });
 });

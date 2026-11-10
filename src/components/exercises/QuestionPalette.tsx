@@ -275,6 +275,10 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               }
             }
 
+            const qLabel = q.exerciseName && q.exerciseQuestionNumber
+              ? `${q.exerciseName} • Q${q.exerciseQuestionNumber} (#${idx + 1})`
+              : `Question ${idx + 1}`;
+
             return (
               <button
                 key={q.id}
@@ -286,8 +290,8 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
                   isCurrent &&
                     'ring-2 ring-zinc-900 dark:ring-zinc-100 ring-offset-2 dark:ring-offset-zinc-900 font-bold z-10'
                 )}
-                title={`Question ${idx + 1}${isMarked ? ' (Marked for Review)' : ''}${isAnswered ? ' (Answered)' : ''}`}
-                aria-label={`Jump to question ${idx + 1}`}
+                title={`${qLabel}${isMarked ? ' (Marked for Review)' : ''}${isAnswered ? ' (Answered)' : ''}`}
+                aria-label={`Jump to ${qLabel}`}
               >
                 <span>{idx + 1}</span>
 
