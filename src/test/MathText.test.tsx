@@ -30,4 +30,22 @@ describe('MathText Component', () => {
     const { container } = render(<MathText text="" />);
     expect(container.firstChild).toBeNull();
   });
+
+  it('normalizes currency backticks into official Indian Rupee symbol ₹', () => {
+    const { container } = render(<MathText text="Price (`) rises from ` 60 to ` 100" />);
+    expect(container.textContent).toContain('Price (₹) rises from ₹60 to ₹100');
+  });
+
+  it('preserves word spaces in English sentences containing LaTeX commands', () => {
+    const { container } = render(<MathText text="The derivative of \sqrt{x+1} is equal to:" />);
+    expect(container.textContent).toContain('The derivative of');
+    expect(container.textContent).toContain('is equal to:');
+    expect(container.querySelector('.katex')).not.toBeNull();
+  });
+
+  it('safely handles percentages inside math delimiters without truncating text', () => {
+    const { container } = render(<MathText text="The interest is $10% + 5%$ per annum" />);
+    expect(container.querySelector('.katex')).not.toBeNull();
+    expect(container.textContent).toContain('per annum');
+  });
 });

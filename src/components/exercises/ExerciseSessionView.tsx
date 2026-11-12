@@ -13,6 +13,8 @@ import {
   BookOpen,
   Keyboard,
   Check,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import {
   ExerciseQuestion,
@@ -58,6 +60,39 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   const [showPaletteModal, setShowPaletteModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showPracticeAnswer, setShowPracticeAnswer] = useState<Record<string, boolean>>({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen Mode Toggle (HTML5 Fullscreen API with Viewport Immersive Fallback)
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement && !isFullscreen) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch {
+      // Graceful fallback for browser restrictions / iframes
+      setIsFullscreen((prev) => !prev);
+    }
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
 
   // Timer states (60 seconds per question allocated in exam mode)
   const initialExamSeconds = questions.length * 60;
@@ -235,6 +270,9 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
       } else if (key === 'm' || key === 'r') {
         e.preventDefault();
         handleToggleMarkForReview();
+      } else if (key === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
 
@@ -252,6 +290,7 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
     handlePrev,
     handleToggleMarkForReview,
     handleClearOption,
+    toggleFullscreen,
   ]);
 
   const formatTime = (totalSeconds: number) => {
@@ -267,7 +306,14 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
   const displayUnitTitle = unitTitle || currentQ?.unitTitle;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
+    <div
+      className={cn(
+        'flex flex-col select-none transition-all duration-300',
+        isFullscreen
+          ? 'fixed inset-0 z-[100] w-screen h-screen overflow-y-auto bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-6 lg:p-8 gap-6'
+          : 'min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6'
+      )}
+    >
       {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-white/80 dark:bg-zinc-900/70 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.45)] backdrop-blur-2xl">
         <div className="flex-1 min-w-0">
@@ -290,6 +336,12 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
             >
               {mode === 'exam' ? 'Exam Mode (-0.25 mark)' : 'Practice Mode'}
             </span>
+            {isFullscreen && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                Fullscreen Focus
+              </span>
+            )}
           </div>
           <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 tracking-tight truncate">
             {chapterTitle}
@@ -319,6 +371,35 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
               {isTimerPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
             </button>
           </div>
+
+          {/* Fullscreen Mode Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleFullscreen}
+            className={cn(
+              'flex items-center gap-1.5 rounded-full min-h-[38px] px-3.5 swiftui-press active:scale-[0.97] transition-all',
+              isFullscreen
+                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm'
+                : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+            )}
+            title={isFullscreen ? 'Exit Fullscreen Mode [Shortcut: F]' : 'Enter Fullscreen Mode [Shortcut: F]'}
+            aria-label={isFullscreen ? 'Exit Fullscreen Mode' : 'Enter Fullscreen Mode'}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline font-semibold">Exit Fullscreen</span>
+                <span className="text-[10px] opacity-70 font-mono">[F]</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline font-medium">Fullscreen</span>
+                <span className="text-[10px] opacity-70 font-mono">[F]</span>
+              </>
+            )}
+          </Button>
 
           {/* Question Palette Trigger Button */}
           <Button
@@ -542,6 +623,8 @@ export const ExerciseSessionView: React.FC<ExerciseSessionViewProps> = ({
                 <span>Shortcuts:</span>
               </div>
               <div className="flex items-center gap-3 font-mono">
+                <span>[F] Fullscreen</span>
+                <span>•</span>
                 <span>[1-4] or [A-D] Select</span>
                 <span>•</span>
                 <span>[←/→] Navigate</span>

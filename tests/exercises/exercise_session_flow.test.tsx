@@ -483,5 +483,78 @@ describe('Exercise Session Flow and UI Interactions', () => {
     expect(screen.getByText('Exercise 1(A) • Q1')).toBeInTheDocument();
     expect(document.querySelectorAll('.katex').length).toBeGreaterThan(0);
   });
+
+  it('toggles fullscreen exam mode on button click and [F] keyboard shortcut in ExerciseSessionView', () => {
+    const { container } = render(
+      <ExerciseSessionView
+        chapterNumber={1}
+        chapterId="eco-ch-01"
+        chapterTitle="Nature & Scope of Business Economics"
+        mode="exam"
+        questions={sampleQuestions}
+        onComplete={vi.fn()}
+        onExit={vi.fn()}
+      />
+    );
+
+    // Initial state: not fullscreen
+    expect(screen.getByRole('button', { name: /Enter Fullscreen Mode/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Fullscreen Focus/i)).toBeNull();
+
+    // Click fullscreen button
+    const fsBtn = screen.getByRole('button', { name: /Enter Fullscreen Mode/i });
+    fireEvent.click(fsBtn);
+
+    // Verify fullscreen active badge and exit button
+    expect(screen.getByText(/Fullscreen Focus/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Exit Fullscreen Mode/i })).toBeInTheDocument();
+
+    // Press 'f' key to toggle back out
+    fireEvent.keyDown(window, { key: 'f' });
+    expect(screen.queryByText(/Fullscreen Focus/i)).toBeNull();
+    expect(screen.getByRole('button', { name: /Enter Fullscreen Mode/i })).toBeInTheDocument();
+  });
+
+  it('toggles fullscreen review mode in CrossVerificationReview', () => {
+    const mockAttempt: ExerciseAttempt = {
+      id: 'attempt-fs-1',
+      chapterNumber: 1,
+      chapterId: 'eco-ch-01',
+      chapterTitle: 'Nature & Scope of Business Economics',
+      mode: 'practice',
+      startedAt: '2026-10-14T06:00:00Z',
+      completedAt: '2026-10-14T06:05:00Z',
+      timeSpentSeconds: 300,
+      selectedAnswers: { 'beco-ch01-q001': 'd' },
+      score: 1,
+      scaledScore: 1,
+      totalQuestions: 1,
+      attemptedCount: 1,
+      correctCount: 1,
+      incorrectCount: 0,
+      unattemptedCount: 0,
+      accuracyPercentage: 100,
+    };
+
+    render(
+      <DataProvider>
+        <CrossVerificationReview
+          attempt={mockAttempt}
+          questions={sampleQuestions}
+          onRetake={vi.fn()}
+          onBackToHub={vi.fn()}
+        />
+      </DataProvider>
+    );
+
+    const reviewFsBtn = screen.getByRole('button', { name: /Enter Fullscreen Review/i });
+    expect(reviewFsBtn).toBeInTheDocument();
+    expect(screen.queryByText(/Fullscreen Review/i)).toBeNull();
+
+    // Toggle fullscreen in review
+    fireEvent.click(reviewFsBtn);
+    expect(screen.getByText(/Fullscreen Review/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Exit Fullscreen Review/i })).toBeInTheDocument();
+  });
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   CheckCircle2,
   XCircle,
@@ -11,6 +11,8 @@ import {
   Award,
   Clock,
   Target,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import {
   ExerciseAttempt,
@@ -43,6 +45,53 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
   const [recordedToTestSeries, setRecordedToTestSeries] = useState(false);
   const [highlightedQuestionId, setHighlightedQuestionId] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen Mode Toggle (HTML5 Fullscreen API with Viewport Immersive Fallback)
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement && !isFullscreen) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch {
+      setIsFullscreen((prev) => !prev);
+    }
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        return;
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleFullscreen]);
 
   // Local state for marked for review to allow toggling during post-submission review
   const [reviewMarkedForReview, setReviewMarkedForReview] = useState<Record<string, boolean>>(
@@ -175,9 +224,16 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
         };
 
   return (
-    <div className="flex flex-col max-w-6xl mx-auto px-4 py-6 gap-6 select-none">
-      {/* Top Header / Back Button */}
-      <div className="flex items-center justify-between">
+    <div
+      className={cn(
+        'flex flex-col select-none transition-all duration-300',
+        isFullscreen
+          ? 'fixed inset-0 z-[100] w-screen h-screen overflow-y-auto bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-6 lg:p-8 gap-6'
+          : 'min-h-[calc(100vh-5rem)] max-w-6xl mx-auto px-4 py-6 gap-6'
+      )}
+    >
+      {/* Top Header / Back Button & Fullscreen Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={onBackToHub}
@@ -187,9 +243,46 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
           <span>Back to Exercises Hub</span>
         </button>
 
-        <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono px-3 py-1 rounded-full bg-zinc-100/70 dark:bg-zinc-800/70 border border-zinc-200/50 dark:border-zinc-700/50">
-          Completed {new Date(attempt.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </span>
+        <div className="flex items-center gap-2.5">
+          {isFullscreen && (
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+              Fullscreen Review
+            </span>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleFullscreen}
+            className={cn(
+              'flex items-center gap-1.5 rounded-full min-h-[36px] px-3.5 swiftui-press active:scale-[0.97] transition-all',
+              isFullscreen
+                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm'
+                : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+            )}
+            title={isFullscreen ? 'Exit Fullscreen Review [Shortcut: F]' : 'Enter Fullscreen Review [Shortcut: F]'}
+            aria-label={isFullscreen ? 'Exit Fullscreen Review' : 'Enter Fullscreen Review'}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline font-semibold">Exit Fullscreen</span>
+                <span className="text-[10px] opacity-70 font-mono">[F]</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline font-medium">Fullscreen</span>
+                <span className="text-[10px] opacity-70 font-mono">[F]</span>
+              </>
+            )}
+          </Button>
+
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono px-3 py-1 rounded-full bg-zinc-100/70 dark:bg-zinc-800/70 border border-zinc-200/50 dark:border-zinc-700/50">
+            Completed {new Date(attempt.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
       </div>
 
       {/* Primary Score & Performance Metric Card */}
@@ -666,10 +759,15 @@ export const CrossVerificationReview: React.FC<CrossVerificationReviewProps> = (
                   </div>
 
                   {/* Stylized Conceptual Explanation Callout Box */}
-                  <div className="p-4.5 rounded-2xl border border-blue-200/40 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20 backdrop-blur-sm">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-2">
-                      <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span>ICAI Conceptual Explanation & Reasoning</span>
+                  <div className="p-5 rounded-2xl border border-blue-200/50 dark:border-blue-900/40 bg-gradient-to-br from-blue-50/40 to-indigo-50/20 dark:from-blue-950/25 dark:to-indigo-950/15 backdrop-blur-md shadow-xs">
+                    <div className="flex items-center justify-between gap-2 pb-2.5 mb-3 border-b border-blue-200/40 dark:border-blue-900/40">
+                      <div className="flex items-center gap-2 text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+                        <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                        <span>ICAI Conceptual Explanation & Step-by-Step Solution</span>
+                      </div>
+                      <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                        Official ICAI Solution
+                      </span>
                     </div>
                     <div className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-normal">
                       <MathText text={q.explanation} />
